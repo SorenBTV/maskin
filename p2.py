@@ -1,113 +1,95 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, r2_score
-import matplotlib.pyplot as plt
 
-# Define the Franke function with added noise
-def franke_function(x, y, noise_std=0.1):
-    term1 = 0.75 * np.exp(-(9*x - 2)**2/4 - (9*y - 2)**2/4)
-    term2 = 0.75 * np.exp(-(9*x + 1)**2/49 - (9*y + 1)/10)
-    term3 = 0.5 * np.exp(-(9*x - 7)**2/4 - (9*y - 3)**2/4)
-    term4 = 0.2 * np.exp(-(9*x - 4)**2 - (9*y - 7)**2)
-    return term1 + term2 + term3 - term4 + noise_std * np.random.randn(*x.shape)
+def MSE(y_data, y_model):
+    n = np.size(y_model)
+    return np.sum((y_data - y_model) ** 2) / n
 
-# Generate random data points in the range [0, 1]
-np.random.seed(0)
-n_points = 1000
-x = np.random.rand(n_points)
-y = np.random.rand(n_points)
-z = franke_function(x, y, noise_std=0.1)
+def OLS_fit_beta(X, y):
+    return np.linalg.pinv(X.T @ X) @ X.T @ y
 
-# Split the data into training and test sets
-x_train, x_test, y_train, y_test, z_train, z_test = train_test_split(x, y, z, test_size=0.33, random_state=42)
+def R2_score(y_actual, y_model):
+    y_actual, y_model = y_actual.ravel(), y_model.ravel()
+    return 1 - np.sum((y_actual - y_model) ** 2) / np.sum((y_actual - np.mean(y_actual)) ** 2)
 
-# Polynomial regression up to degree 5
-max_degree = 5
-mse_scores_train = []
-mse_scores_test = []
-r2_scores_train = []
-r2_scores_test = []
-beta_values = []
+# Custom Ridge regression function
+def Ridge_fit_beta(X, y, alpha):
+    I = np.eye(X.shape[1])
+    beta = np.linalg.inv(X.T @ X + alpha * I) @ X.T @ y
+    return beta
 
-# Ridge regression parameter (lambda)
-lambda_values = [0.001, 0.01, 0.1, 1, 10]
+# Function to create a design matrix
+def create_design_matrix(x, y, degree):
+    if len(x.shape) > 1:
+        x, y = x.ravel(), y.ravel()
+    N = len(x)
+    num_features = int((degree + 1) * (degree + 2) / 2)
+    X = np.ones((N, num_features))
+    col = 1
+    for i in range(1, degree + 1):
+        for j in range(i + 1):
+            X[:, col] = x ** (i - j) * y ** j
+            col += 1
+    return X
 
-for lambda_val in lambda_values:
-    mse_train_lambda = []
-    mse_test_lambda = []
-    r2_train_lambda = []
-    r2_test_lambda = []
-    beta_lambda = []
+# Definition of the Franke Function
+def FrankeFunction(x, y):
+    term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2) ** 2) - 0.25 * ((9 * y - 2) ** 2))
+    term2 = 0.75 * np.exp(-((9 * x + 1) ** 2) / 49.0 - 0.1 * (9 * y + 1))
+    term3 = 0.5 * np.exp(-(9 * x - 7) ** 2 / 4.0 - 0.25 * ((9 * y - 3) ** 2))
+    term4 = -0.2 * np.exp(-(9 * x - 4) ** 2 - (9 * y - 7) ** 2)
+    return term1 + term2 + term3 + term4
 
-    for degree in range(1, max_degree+1):
-        X_train = np.column_stack([x_train**i * y_train**(degree-i) for i in range(degree+1)])
-        X_test = np.column_stack([x_test**i * y_test**(degree-i) for i in range(degree+1)])
+np.random.seed(123)  # Setting a seed for reproducibility
+n = 25  # Number of data points
 
-        # Center and scale the data
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
+#Generate random values for x and y within [0, 1]
+x = np.sort(np.random.uniform(0, 1, n))
+y = np.sort(np.random.uniform(0, 1, n))
+x, y = np.meshgrid(x,y)
+x, y = x.ravel(), y.ravel()
 
-        # Perform Ridge regression
-        I = np.identity(X_train_scaled.shape[1])
-        beta = np.linalg.inv(X_train_scaled.T @ X_train_scaled + lambda_val * I) @ X_train_scaled.T @ z_train
+# Generate the corresponding z values using the Franke function
+z = FrankeFunction(x, y)
+noise = np.random.normal(0, 0.1, n*n)
+z = z + noise
 
-        # Make predictions on training data
-        z_pred_train = X_train_scaled @ beta
+# Create polynomial features up to fifth order
+#max_degree = 14
 
-        # Make predictions on test data
-        z_pred_test = X_test_scaled @ beta
+# Initialize a StandardScaler
+scaler = StandardScaler()
 
-        # Calculate MSE and R-squared for training and test data
-        mse_train = mean_squared_error(z_train, z_pred_train)
-        mse_test = mean_squared_error(z_test, z_pred_test)
-        r2_train = r2_score(z_train, z_pred_train)
-        r2_test = r2_score(z_test, z_pred_test)
+# Polynomial degrees to consider
+#degrees = np.arange(0, max_degree, 1)
+degrees = np.array([11])
 
-        mse_train_lambda.append(mse_train)
-        mse_test_lambda.append(mse_test)
-        r2_train_lambda.append(r2_train)
-        r2_test_lambda.append(r2_test)
-        beta_lambda.append(beta)
+# Values of lambda (regularization strength) to test
+lambda_values = np.logspace(-10, 0, 11)
+test_mse = np.zeros(len(lambda_values))
 
-    mse_scores_train.append(mse_train_lambda)
-    mse_scores_test.append(mse_test_lambda)
-    r2_scores_train.append(r2_train_lambda)
-    r2_scores_test.append(r2_test_lambda)
-    beta_values.append(beta_lambda)
+for i in range(len(lambda_values)):
 
-# Plot MSE and R-squared scores for different lambda values
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-for i, lambda_val in enumerate(lambda_values):
-    plt.plot(range(1, max_degree+1), mse_scores_train[i], ".--", label=f"Training, λ={lambda_val}")
-    plt.plot(range(1, max_degree+1), mse_scores_test[i], ".-", label=f"Test, λ={lambda_val}")
-plt.title("Mean Squared Error (MSE) with Ridge Regression")
-plt.xlabel("Polynomial Degree")
+    X = create_design_matrix(x, y, degrees[0])
+    X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)#, random_state=42)
+
+    scaler.fit(X_train)
+    X_train_scaled, X_test_scaled = scaler.transform(X_train), scaler.transform(X_test)
+
+    # Create and fit Ridge regression model using custom function
+    beta = Ridge_fit_beta(X_train_scaled, z_train, lambda_values[i])
+
+    z_train_pred = X_train_scaled @ beta
+    z_test_pred = X_test_scaled @ beta
+    test_mse[i] =MSE(z_test, z_test_pred)
+
+#print(test_mse[0,:])
+plt.plot(lambda_values,test_mse, label="MSE")
+plt.title("MSE plotted against different $\lambda$ values")
+plt.xscale("log")
+plt.xlabel(r'$\lambda$')
 plt.ylabel("MSE")
-plt.legend()
-
-plt.subplot(1, 2, 2)
-for i, lambda_val in enumerate(lambda_values):
-    plt.plot(range(1, max_degree+1), r2_scores_train[i], ".--", label=f"Training, λ={lambda_val}")
-    plt.plot(range(1, max_degree+1), r2_scores_test[i], ".-", label=f"Test, λ={lambda_val}")
-plt.title("R-squared (R^2) Score with Ridge Regression")
-plt.xlabel("Polynomial Degree")
-plt.ylabel("R^2")
-plt.legend()
-
-plt.tight_layout()
-plt.show()
-
-# Plot beta values for a specific lambda (e.g., lambda=0.01)
-selected_lambda_idx = 1  # Change the index to select a different lambda value
-selected_lambda = lambda_values[selected_lambda_idx]
-plt.figure(figsize=(12, 6))
-for i in range(max_degree):
-    plt.plot(range(i+2), beta_values[selected_lambda_idx][i], ".-", label=f"Degree {i+1}")
-plt.title(f"Estimated Beta Coefficients with Ridge Regression (λ={selected_lambda})")
-plt.xlabel("Beta Index")
-plt.ylabel("Beta Value")
-plt.legend()
+plt.grid()
 plt.show()
