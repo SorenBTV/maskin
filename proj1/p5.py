@@ -54,7 +54,7 @@ z = FrankeFunction(x, y)
 noise = np.random.normal(0, 0.1, n * n)
 z = z + noise
 
-degrees = np.arange(0, max_degree, 1)
+degrees = np.arange(1, max_degree+1, 1)
 error = np.zeros(max_degree)
 error_train = np.zeros(max_degree)
 error_test = np.zeros(max_degree)
@@ -86,10 +86,10 @@ for degree in degrees:
 
 
 
-    error_train[degree] = np.mean(mse_train)
-    error_test[degree] = np.mean(mse_test)
-    bias[degree] = np.mean((z_test - np.mean(z_predict, axis=1))**2)
-    variance[degree] = np.mean(np.var(z_predict, axis=1))
+    error_train[degree-1] = np.mean(mse_train)
+    error_test[degree-1] = np.mean(mse_test)
+    bias[degree-1] = np.mean((z_test - np.mean(z_predict, axis=1))**2)
+    variance[degree-1] = np.mean(np.var(z_predict, axis=1))
     #print(f"{error_test[degree]:g} = {bias[degree]+variance[degree]:g}")
 
 
@@ -99,13 +99,20 @@ plt.plot(degrees, error_train,".--", label="Error train")
 plt.plot(degrees, error_test, label="Error test")
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
+plt.title("MSE for the franke function with bootstrap resampling")
 plt.legend()
 plt.grid()
+plt.savefig("figures\MSE_bootstrap_franke.pdf")
 plt.show()
+
 
 plt.plot(degrees, error_test,".--", label="Error test")
 plt.plot(degrees, bias, label="Bias")
 plt.plot(degrees, variance, label="Variance")
+plt.title("Bias-variance tradeoff for the franke function")
+plt.xlabel("Polynomial degree")
+plt.ylabel("Error")
 plt.legend()
 plt.grid()
+plt.savefig("figures\Bias_var_franke.pdf")
 plt.show()

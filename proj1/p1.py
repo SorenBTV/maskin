@@ -4,7 +4,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import r2_score as R2_score
+#from sklearn.metrics import r2_score as R2_score
 
 
 def MSE(y_data,y_model):
@@ -86,42 +86,24 @@ for degree in degrees:
     test_r2[degree] = (R2_score(z_test, z_predict))
 
 
-# Create a figure with two subplots side by side
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-
-# Plot MSE on the first subplot
-ax1.plot(degrees, train_mse,".--", label="Train")
-ax1.plot(degrees, test_mse,".-", label="Test")
-ax1.legend()
-ax1.grid()
-ax1.set_title("Mean squared error")
-ax1.set_xlabel("Polynomial degree")
-ax1.set_ylabel("MSE")
-
-# Plot R2 scores on the second subplot
-ax2.plot(degrees, train_r2, ".--", label="Train")
-ax2.plot(degrees, test_r2, ".-", label="Test")
-ax2.legend()
-ax2.grid()
-ax2.set_title("R2 score")
-ax2.set_xlabel("Polynomial degree")
-ax2.set_ylabel("$R^2$")
-
-plt.tight_layout()
-plt.show()
-
-"""
-#Beta plot
-for degree, beta in zip(degrees, beta_values):
-    plt.plot(range(beta.size), beta, label=f"{degree=}")
-# Customize the x-axis ticks and tilt them by 60 degrees
-x_ticks = np.arange(beta_values[0].size)
-plt.xticks(x_ticks, labels=x_ticks, rotation=60)
-
+# Plot MSE
+plt.plot(degrees, train_mse,".--", label="Train")
+plt.plot(degrees, test_mse,".-", label="Test")
 plt.legend()
-plt.xticks(np.arange(plt.xlim()[1]), labels=np.arange(plt.xlim()[1]))
-plt.title("Beta parameters")
-plt.xlabel("$i$")
-plt.ylabel(r"$\beta_i$")
+plt.grid()
+plt.title("Mean squared error")
+plt.xlabel("Polynomial degree")
+plt.ylabel("MSE")
+plt.savefig("figures\MSE_OLS_franke.pdf")
 plt.show()
-"""
+
+# Plot R2 scores
+plt.plot(degrees, train_r2, ".--", label="Train")
+plt.plot(degrees, test_r2, ".-", label="Test")
+plt.legend()
+plt.grid()
+plt.title("R2 score")
+plt.xlabel("Polynomial degree")
+plt.ylabel("$R^2$")
+plt.savefig("figures\R2_score_franke.pdf")
+plt.show()

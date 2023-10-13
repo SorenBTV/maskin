@@ -43,7 +43,7 @@ def FrankeFunction(x, y):
     return term1 + term2 + term3 + term4
 
 np.random.seed(123)  # Setting a seed for reproducibility
-n = 25  # Number of data points
+n = 50  # Number of data points
 
 #Generate random values for x and y within [0, 1]
 x = np.sort(np.random.uniform(0, 1, n))
@@ -64,11 +64,12 @@ scaler = StandardScaler()
 
 # Polynomial degrees to consider
 #degrees = np.arange(0, max_degree, 1)
-degrees = np.array([11])
+degrees = np.array([15])
 
 # Values of lambda (regularization strength) to test
 lambda_values = np.logspace(-10, 0, 11)
 test_mse = np.zeros(len(lambda_values))
+train_mse = np.zeros(len(lambda_values))
 
 for i in range(len(lambda_values)):
 
@@ -84,12 +85,16 @@ for i in range(len(lambda_values)):
     z_train_pred = X_train_scaled @ beta
     z_test_pred = X_test_scaled @ beta
     test_mse[i] =MSE(z_test, z_test_pred)
+    train_mse[i] =MSE(z_train, z_train_pred)
 
 #print(test_mse[0,:])
-plt.plot(lambda_values,test_mse, label="MSE")
+plt.plot(lambda_values,test_mse, ".-", label="test")
+plt.plot(lambda_values,train_mse, ".--", label="train")
 plt.title("MSE plotted against different $\lambda$ values")
 plt.xscale("log")
 plt.xlabel(r'$\lambda$')
 plt.ylabel("MSE")
+plt.legend()
 plt.grid()
+plt.savefig("figures\Ridge_frankefunction.pdf", dpi=300)
 plt.show()

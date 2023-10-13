@@ -76,35 +76,12 @@ for degree in degrees:
     train_r2[degree] = r2_score(z_train, z_train_pred)
     test_r2[degree] = r2_score(z_test, z_test_pred)
 
-"""
-plt.plot(degrees, train_mse, ".--", label="Train")
-plt.plot(degrees, test_mse, ".-", label="Test")
-plt.title("Mean squared error")
+plt.plot(degrees, train_mse,".--", label="Train")
+plt.plot(degrees, test_mse,".-", label="Test")
+plt.legend()
 plt.grid()
+plt.title("Mean squared error")
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-plt.show()
-"""
-# Create a figure with two subplots side by side
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-
-# Plot MSE on the first subplot
-ax1.plot(degrees, train_mse, ".--", label="Train")
-ax1.plot(degrees, test_mse, ".-", label="Test")
-ax1.legend()
-ax1.grid()
-ax1.set_title("Mean squared error")
-ax1.set_xlabel("Polynomial degree")
-ax1.set_ylabel("MSE")
-
-# Plot R2 scores on the second subplot
-ax2.plot(degrees, train_r2, ".--", label="Train")
-ax2.plot(degrees, test_r2, ".-", label="Test")
-ax2.legend()
-ax2.grid()
-ax2.set_title("R2 score")
-ax2.set_xlabel("Polynomial degree")
-ax2.set_ylabel("$R^2$")
-
-plt.tight_layout()
+plt.savefig("figures\MSE_Lasso_franke.pdf")
 plt.show()
