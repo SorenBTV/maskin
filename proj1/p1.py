@@ -6,18 +6,21 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
+# Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data,y_model):
     n = np.size(y_model)
     return np.sum((y_data-y_model)**2)/n
 
+# Define a function to fit beta coefficients using Ordinary Least Squares (OLS)
 def OLS_fit_beta(X, y):
     return np.linalg.pinv(X.T @ X) @ X.T @ y
 
+# Define a function to calculate R-squared (R2) score
 def R2_score(y_actual, y_model):
     y_actual, y_model = y_actual.ravel(), y_model.ravel()  # flatten arrays
     return 1 - np.sum((y_actual - y_model)**2) / np.sum((y_actual - np.mean(y_actual))**2)
 
-
+# Define a function to create a design matrix for polynomial regression
 def create_design_matrix(x, y, degree):
     if len(x.shape) > 1:
         x, y = x.ravel(), y.ravel()
@@ -31,6 +34,7 @@ def create_design_matrix(x, y, degree):
             col += 1
     return X
 
+# Define the Franke function that generates synthetic data
 def FrankeFunction(x,y):
     term1 = 0.75*np.exp(-(0.25*(9*x-2)**2) - 0.25*((9*y-2)**2))
     term2 = 0.75*np.exp(-((9*x+1)**2)/49.0 - 0.1*(9*y+1))
@@ -39,26 +43,25 @@ def FrankeFunction(x,y):
     return term1 + term2 + term3 + term4
 
 
-np.random.seed(123)  # Setting a seed for reproducibility
-n = 100  # Number of data points
+# Set a random seed for reproducibility
+np.random.seed(123)
 
-#Generate random values for x and y within [0, 1]
+# Define the number of data points and generate random x and y values
+n = 100
 x = np.sort(np.random.uniform(0, 1, n))
 y = np.sort(np.random.uniform(0, 1, n))
 x, y = np.meshgrid(x,y)
 x, y = x.ravel(), y.ravel()
 #print(x)
 
-# Generate the corresponding z values using the Franke function
+# Generate synthetic data with noise using the Franke function
 z = FrankeFunction(x, y)
 noise = np.random.normal(0, 0.1, n*n)
 z = z + noise
 
 
-# Create polynomial features up to fifth order
+# Specify the maximum polynomial degree and initialize data arrays
 max_degree = 5
-#poly = PolynomialFeatures(degree=5)
-
 scaler = StandardScaler()
 degrees = np.arange(1, max_degree+1, 1)
 train_mse = np.empty(degrees.shape)
@@ -67,6 +70,7 @@ train_r2 = np.empty_like(train_mse)
 test_r2 = np.empty_like(train_mse)
 beta_values = []
 
+# Loop through different polynomial degrees for regression
 for degree in degrees:
     X = create_design_matrix(x, y, degree)
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2, random_state=42)
@@ -110,6 +114,7 @@ plt.ylabel("$R^2$")
 plt.savefig("figures\R2_score_franke.pdf")
 #plt.show()
 
+# Plot beta parameters
 plt.figure(figsize=(8, 5))
 for degree in degrees:
     plt.scatter(

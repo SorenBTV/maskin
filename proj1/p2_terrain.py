@@ -8,13 +8,16 @@ from sklearn.utils import resample
 from sklearn.pipeline import make_pipeline
 from imageio import imread
 
+# Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data, y_model):
     n = np.size(y_model)
     return np.sum((y_data - y_model) ** 2) / n
 
+# Define a function to fit beta coefficients using Ordinary Least Squares (OLS)
 def OLS_fit_beta(X, y):
     return np.linalg.pinv(X.T @ X) @ X.T @ y
 
+# Define a function to calculate R-squared (R2) score
 def R2_score(y_actual, y_model):
     y_actual, y_model = y_actual.ravel(), y_model.ravel()
     return 1 - np.sum((y_actual - y_model) ** 2) / np.sum((y_actual - np.mean(y_actual)) ** 2)
@@ -25,7 +28,7 @@ def Ridge_fit_beta(X, y, alpha):
     beta = np.linalg.inv(X.T @ X + alpha * I) @ X.T @ y
     return beta
 
-# Function to create a design matrix
+# Function to create a design matrix for polynomial regression
 def create_design_matrix(x, y, degree):
     if len(x.shape) > 1:
         x, y = x.ravel(), y.ravel()
@@ -40,12 +43,12 @@ def create_design_matrix(x, y, degree):
     return X
 
 
-# Load the terrain
+# Load terrain data from an image file
 terrain = imread('SRTM_data_Norway_1.tif')
 n = 100
 terrain = terrain[:n, :n]
 
-# Creates a mesh of image pixels
+# Create a mesh of image pixels
 x = np.linspace(0, 1, np.shape(terrain)[0])
 y = np.linspace(0, 1, np.shape(terrain)[1])
 x, y = np.meshgrid(x, y)
@@ -60,29 +63,35 @@ z = (z - mean_scale) / std_scale
 # Initialize a StandardScaler
 scaler = StandardScaler()
 
+# Set polynomial degree and a range of lambda values
 degrees = np.array([6])
 lambda_values = np.logspace(-5, 0, 6)
 test_mse = np.zeros(len(lambda_values))
 train_mse = np.zeros(len(lambda_values))
 
-
+# Loop through lambda values
 for i in range(len(lambda_values)):
 
+    # Create a design matrix for polynomial regression
     X = create_design_matrix(x, y, degrees[0])
     X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2, random_state=42)
 
+    # Scale the feature matrix using StandardScaler
     scaler.fit(X_train)
     X_train_scaled, X_test_scaled = scaler.transform(X_train), scaler.transform(X_test)
 
     # Create and fit Ridge regression model using custom function
     beta = Ridge_fit_beta(X_train_scaled, z_train, lambda_values[i])
 
+    # Calculate predictions on training and testing data
     z_train_pred = X_train_scaled @ beta
     z_test_pred = X_test_scaled @ beta
+
+    # Calculate and store Mean Squared Error for training and testing data
     test_mse[i] =MSE(z_test, z_test_pred)
     train_mse[i] =MSE(z_train, z_train_pred)
 
-#print(test_mse[0,:])
+# Plot MSE for different lambda values
 plt.plot(lambda_values,train_mse, ".--", label="train")
 plt.plot(lambda_values,test_mse, ".-", label="test")
 plt.title("MSE for terrain data using ridge regression")

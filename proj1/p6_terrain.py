@@ -11,21 +11,22 @@ from sklearn.metrics import mean_squared_error
 import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
-#from p6 import MSE, OLS_fit_beta, R2_score, k_fold, Ridge_fit_beta, create_design_matrix
 
+# Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data,y_model):
     n = np.size(y_model)
     return np.sum((y_data-y_model)**2)/n
 
+# Define a function to fit beta coefficients using Ordinary Least Squares (OLS)
 def OLS_fit_beta(X, y):
     return np.linalg.pinv(X.T @ X) @ X.T @ y
 
+# Define a function to calculate the R-squared score
 def R2_score(y_actual, y_model):
-    #Returns the R2 score of the two arrays.
-    y_actual, y_model = y_actual.ravel(), y_model.ravel()  # flatten arrays
+    y_actual, y_model = y_actual.ravel(), y_model.ravel()
     return 1 - np.sum((y_actual - y_model)**2) / np.sum((y_actual - np.mean(y_actual))**2)
 
-
+# Define a function for k-fold cross-validation
 def k_fold(data, k):
     n_samples = len(data)
     fold_size = n_samples // k
@@ -47,6 +48,7 @@ def Ridge_fit_beta(X, y, alpha):
     beta = np.linalg.inv(X.T @ X + alpha * I) @ X.T @ y
     return beta
 
+# Function to create a design matrix for polynomial regression
 def create_design_matrix(x, y, degree):
     if len(x.shape) > 1:
         x, y = x.ravel(), y.ravel()
@@ -64,7 +66,7 @@ def create_design_matrix(x, y, degree):
 # Load the terrain
 terrain = imread('SRTM_data_Norway_1.tif')
 #print(np.shape(terrain))
-n = 50
+n = 50 # Number of data points
 terrain = terrain[:n, :n]
 
 # Creates mesh of image pixels
@@ -75,7 +77,7 @@ x = x.flatten()
 y = y.flatten()
 
 
-#noise = np.random.normal(0, 0.1, n*n)  # Generate 2D noise
+# Standardize the terrain data
 z = terrain.ravel()
 mean_scale = np.mean(z)
 std_scale = np.std(z)
@@ -84,25 +86,32 @@ z = (z - mean_scale) / std_scale  # Standard scale
 # Initialize a StandardScaler
 scaler = StandardScaler()
 
+# Data preprocessing for different regression methods
 data = np.column_stack((x, y, z))
 
+# Define the number of lambdas for Ridge and Lasso regression
 nlambdas = 6
 lambdas = np.logspace(-5, 0, nlambdas)
-#colors = sns.color_palette("husl", nlambdas)
 
+# Define the maximum polynomial degree and a range of degrees to consider
 max_deg = 6
 degrees = np.arange(1, max_deg+1)
 
+# Define the number of folds for cross-validation
 k = 10
-#kf = k_fold(n_splits=k, shuffle=True, random_state=123)
+
 
 
 #OLS
 plt.figure(figsize=(10, 6))
+
+# Initialize arrays to store error metrics and results and results for each fold
 train_mse = np.empty(degrees.shape)
 test_mse = np.empty_like(train_mse)
 scores_KFold = np.zeros(k)
 k_fold_indices = k_fold(data, k)
+
+# Perform cross-validated OLS regression for different polynomial degrees
 for degree in degrees:
     for j, (train_indices, test_indices) in enumerate(k_fold_indices):
         train, test = data[train_indices], data[test_indices]
@@ -117,6 +126,8 @@ for degree in degrees:
         zpred_train, zpred_test = Xtrain_scaled @ beta_train, Xtest_scaled @ beta_test
     train_mse[degree-1] = np.mean(MSE(train[:,2], zpred_train))
     test_mse[degree-1] = np.mean(MSE(test[:,2], zpred_test))
+
+# Plot the Mean Squared Error for different polynomial degrees with OLS
 #plt.plot(degrees, train_mse, ".--", label="Train")
 plt.plot(degrees, test_mse, ".-", label="Test")
 plt.title("MSE for terrain data using OLS with cross-validation")
@@ -129,11 +140,14 @@ plt.savefig("figures/OLS_MSE_terrain_cross_validation.pdf", dpi=300)
 
 #Ridge regression
 plt.figure(figsize=(10, 6))
+# Initialize arrays to store results for Ridge regression
 test_mse = np.zeros(len(lambdas))
 train_mse = np.zeros(len(lambdas))
 error = np.zeros((len(degrees), len(lambdas)))
 scores_KFold = np.zeros(k)
 k_fold_indices = k_fold(data, k)
+
+# Perform cross-validated Ridge regression for different polynomial degrees and lambdas
 for i in range(len(lambdas)):
     for j, degree in enumerate(degrees):
         for train_indices, test_indices in k_fold_indices:
@@ -153,7 +167,7 @@ for i in range(len(lambdas)):
     error[:, i] = test_mse
 
 
-# Customize the heatmap appearance
+# Create a heatmap of the Mean Squared Error for Ridge regression
 heatmap = sns.heatmap(error, annot=True, annot_kws={"size": 7}, cmap="coolwarm", xticklabels=lambdas, yticklabels=degrees, cbar_kws={'label': 'Mean squared error'})
 heatmap.invert_yaxis()
 heatmap.set_ylabel("Polynomial degree")
@@ -165,7 +179,11 @@ plt.tight_layout()
 plt.savefig("figures/Ridge_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
 #plt.show()
 
+
+
 #Lasso
+
+# Initialize arrays to store results for Lasso regression
 test_mse = np.zeros(len(lambdas))
 train_mse = np.zeros(len(lambdas))
 error = np.zeros((len(degrees), len(lambdas)))
@@ -173,6 +191,7 @@ scores_KFold = np.zeros(k)
 k_fold_indices = k_fold(data, k)
 plt.figure(figsize=(10, 6))
 
+# Perform cross-validated Lasso regression for different polynomial degrees and lambdas
 for i in range(len(lambdas)):
     print(i)
     for j, degree in enumerate(degrees):
@@ -193,6 +212,7 @@ for i in range(len(lambdas)):
         test_mse[degree-1] = mean_squared_error(test[:,2], ztest_pred)
     error[:, i] = test_mse
 
+# Create a heatmap of the Mean Squared Error for Lasso regression
 heatmap = sns.heatmap(error, annot=True, annot_kws={"size": 7}, cmap="coolwarm", xticklabels=lambdas, yticklabels=degrees, cbar_kws={'label': 'Mean squared error'})
 heatmap.invert_yaxis()
 heatmap.set_ylabel("Polynomial degree")

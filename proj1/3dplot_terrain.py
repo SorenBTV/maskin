@@ -41,7 +41,7 @@ def lasso_regression(X, z, lmd, max_iter=100000, tol=1e-2):
     lasso.fit(X, z)
     return lasso
 
-def plot_3d_trisurf(x, y, z, scale_std=1, scale_mean=0, savename=None, azim=110, title=""):
+def plot_3d_trisurf(x, y, z, scale_std=1, scale_mean=0, savename=None, azim=-120, title=""):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     plt.title(title)
@@ -53,9 +53,7 @@ def plot_3d_trisurf(x, y, z, scale_std=1, scale_mean=0, savename=None, azim=110,
     ax.view_init(azim=azim)
 
     fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.tight_layout(pad=1.5, w_pad=0.7, h_pad=0.2)
-    if savename != None:
-        plt.savefig("figures/%s.png" %(savename))
+    plt.tight_layout()
 
 def compare_3d(x, y, z, noise, deg, lmb, name_add="", std=0, mean=0, azim=-120):
 
@@ -69,7 +67,7 @@ def compare_3d(x, y, z, noise, deg, lmb, name_add="", std=0, mean=0, azim=-120):
 
     X_train = create_design_matrix(x_train, y_train, deg)
     X_test = create_design_matrix(x_test, y_test, deg)
-    lasso = lasso_regression(X_train, z_train, lmb, max_iter=int(1e3), tol=1e-4)
+    lasso = lasso_regression(X_train, z_train, lmb, max_iter=int(1e5), tol=1e-4)
     z_pred_lasso = lasso.predict(X_test)*std + mean
 
     X_train = create_design_matrix(x_train, y_train, deg)
@@ -78,23 +76,22 @@ def compare_3d(x, y, z, noise, deg, lmb, name_add="", std=0, mean=0, azim=-120):
     z_pred_OLS =  (X_test @ beta)*std + mean
 
     plot_3d_trisurf(x_test, y_test, z_test*std + mean , azim=azim, title="Test data")
-    plt.savefig("figures/test_data_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/test_data_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plot_3d_trisurf(x_train, y_train, z_train*std + mean , azim=azim, title="Train data")
-    plt.savefig("figures/train_data_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/train_data_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plot_3d_trisurf(x.ravel(), y.ravel(), z_true, azim=azim, title="Actual data")
-    plt.savefig("figures/actual_data_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/actual_data_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plot_3d_trisurf(x_test, y_test, z_pred_ridge, azim=azim, title="Ridge predict")
-    plt.savefig("figures/ridge_pred_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/ridge_pred_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plot_3d_trisurf(x_test, y_test, z_pred_lasso, azim=azim, title="Lasso predict")
-    plt.savefig("figures/lasso_pred_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/lasso_pred_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plot_3d_trisurf(x_test, y_test, z_pred_OLS, azim=azim, title="OLS predict")
-    plt.savefig("figures/ols_pred_%s.png" %(name_add), dpi=300, bbox_inches='tight')
+    plt.savefig("figures/ols_pred_%s.pdf" %(name_add), dpi=300, bbox_inches='tight')
     plt.show()
 
 
 # Load the terrain
 terrain = imread('SRTM_data_Norway_1.tif')
-#print(np.shape(terrain))
 n = 100
 terrain = terrain[:n, :n]
 
@@ -106,9 +103,7 @@ x = x.flatten()
 y = y.flatten()
 
 
-#noise = np.random.normal(0, 0.1, n*n)  # Generate 2D noise
 z = terrain.ravel()
-
 mean_scale = np.mean(z)
 std_scale = np.std(z)
 z = (z - mean_scale) / std_scale  # Standard scale
@@ -119,4 +114,4 @@ lmb = 1e-10
 deg = 20
 
 
-compare_3d(x, y, z, 0, deg, lmb, name_add="n100", std=std_scale, mean=mean_scale, azim=-120)
+compare_3d(x, y, z, 0, deg, lmb, name_add="3D_plot", std=std_scale, mean=mean_scale, azim=-120)

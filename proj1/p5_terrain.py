@@ -8,14 +8,16 @@ from sklearn.utils import resample
 from sklearn.pipeline import make_pipeline
 from imageio import imread
 
+# Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data,y_model):
     n = np.size(y_model)
     return np.sum((y_data-y_model)**2)/n
 
+# Define a function to fit beta coefficients using Ordinary Least Squares (OLS)
 def OLS_fit_beta(X, y):
     return np.linalg.pinv(X.T @ X) @ X.T @ y
 
-
+# Function to create a design matrix for polynomial regression
 def create_design_matrix(x, y, degree):
     if len(x.shape) > 1:
         x, y = x.ravel(), y.ravel()
@@ -32,7 +34,6 @@ def create_design_matrix(x, y, degree):
 
 # Load the terrain
 terrain = imread('SRTM_data_Norway_1.tif')
-#print(np.shape(terrain))
 n = 100
 n_bootstraps = 100  # Number of bootstrap samples
 terrain = terrain[:n, :n]
@@ -45,7 +46,6 @@ x = x.flatten()
 y = y.flatten()
 
 
-#noise = np.random.normal(0, 0.1, n*n)  # Generate 2D noise
 z = terrain.ravel()
 mean_scale = np.mean(z)
 std_scale = np.std(z)
@@ -62,6 +62,7 @@ variance = np.zeros(max_degree)
 mse_train = np.empty(n_bootstraps)
 mse_test = np.empty(n_bootstraps)
 
+# Loop through different polynomial degrees
 for degree in degrees:
 
     X = create_design_matrix(x, y, degree)
@@ -71,7 +72,7 @@ for degree in degrees:
     z_predict = np.empty((z_test.shape[0], n_bootstraps))
 
 
-
+    # Perform bootstrap resampling
     for i in range(n_bootstraps):
         X_, z_ = resample(X_train, z_train)
         beta = OLS_fit_beta(X_, z_)
@@ -92,7 +93,7 @@ for degree in degrees:
     #print(f"{error_test[degree]:g} = {bias[degree]+variance[degree]:g}")
 
 
-
+# Plot the Mean Squared Error for different polynomial degrees
 plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_train,".--", label="Error train")
 plt.plot(degrees, error_test, label="Error test")
@@ -104,6 +105,7 @@ plt.grid()
 plt.savefig("figures\MSE_bootstrap_terrain.pdf")
 #plt.show()
 
+# Plot Bias-Variance trade-off
 plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_test,".--", label="Error test")
 plt.plot(degrees, bias, label="Bias")
