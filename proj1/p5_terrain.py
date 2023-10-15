@@ -33,7 +33,7 @@ def create_design_matrix(x, y, degree):
 # Load the terrain
 terrain = imread('SRTM_data_Norway_1.tif')
 #print(np.shape(terrain))
-n = 50
+n = 100
 n_bootstraps = 100  # Number of bootstrap samples
 terrain = terrain[:n, :n]
 
@@ -51,7 +51,7 @@ mean_scale = np.mean(z)
 std_scale = np.std(z)
 z = (z - mean_scale) / std_scale  # Standard scale
 
-max_degree = 6
+max_degree = 15
 
 degrees = np.arange(1, max_degree+1, 1)
 error = np.zeros(max_degree)
@@ -93,7 +93,7 @@ for degree in degrees:
 
 
 
-
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_train,".--", label="Error train")
 plt.plot(degrees, error_test, label="Error test")
 plt.xlabel("Polynomial degree")
@@ -102,9 +102,9 @@ plt.title("MSE for the terrain data with bootstrap resampling")
 plt.legend()
 plt.grid()
 plt.savefig("figures\MSE_bootstrap_terrain.pdf")
-plt.show()
+#plt.show()
 
-
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_test,".--", label="Error test")
 plt.plot(degrees, bias, label="Bias")
 plt.plot(degrees, variance, label="Variance")
@@ -114,4 +114,4 @@ plt.ylabel("Error")
 plt.legend()
 plt.grid()
 plt.savefig("figures\Bias_var_terrain.pdf")
-plt.show()
+#plt.show()

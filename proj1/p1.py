@@ -4,7 +4,6 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-#from sklearn.metrics import r2_score as R2_score
 
 
 def MSE(y_data,y_model):
@@ -15,7 +14,6 @@ def OLS_fit_beta(X, y):
     return np.linalg.pinv(X.T @ X) @ X.T @ y
 
 def R2_score(y_actual, y_model):
-    #Returns the R2 score of the two arrays.
     y_actual, y_model = y_actual.ravel(), y_model.ravel()  # flatten arrays
     return 1 - np.sum((y_actual - y_model)**2) / np.sum((y_actual - np.mean(y_actual))**2)
 
@@ -42,7 +40,7 @@ def FrankeFunction(x,y):
 
 
 np.random.seed(123)  # Setting a seed for reproducibility
-n = 25  # Number of data points
+n = 100  # Number of data points
 
 #Generate random values for x and y within [0, 1]
 x = np.sort(np.random.uniform(0, 1, n))
@@ -58,11 +56,11 @@ z = z + noise
 
 
 # Create polynomial features up to fifth order
-max_degree = 14
+max_degree = 5
 #poly = PolynomialFeatures(degree=5)
 
 scaler = StandardScaler()
-degrees = np.arange(0, max_degree, 1)
+degrees = np.arange(1, max_degree+1, 1)
 train_mse = np.empty(degrees.shape)
 test_mse = np.empty_like(train_mse)
 train_r2 = np.empty_like(train_mse)
@@ -80,30 +78,50 @@ for degree in degrees:
     beta = OLS_fit_beta(X_train_scaled, z_train)
     z_tilde, z_predict = X_train_scaled @ beta, X_test_scaled @ beta
     beta_values.append(beta)
-    train_mse[degree] = (MSE(z_train, z_tilde))
-    test_mse[degree] = (MSE(z_test, z_predict))
-    train_r2[degree] = (R2_score(z_train, z_tilde))
-    test_r2[degree] = (R2_score(z_test, z_predict))
+    train_mse[degree-1] = (MSE(z_train, z_tilde))
+    test_mse[degree-1] = (MSE(z_test, z_predict))
+    train_r2[degree-1] = (R2_score(z_train, z_tilde))
+    test_r2[degree-1] = (R2_score(z_test, z_predict))
+
 
 
 # Plot MSE
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, train_mse,".--", label="Train")
 plt.plot(degrees, test_mse,".-", label="Test")
 plt.legend()
 plt.grid()
-plt.title("Mean squared error")
+plt.title("MSE for Franke function using OLS")
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
 plt.savefig("figures\MSE_OLS_franke.pdf")
-plt.show()
+#plt.show()
+
 
 # Plot R2 scores
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, train_r2, ".--", label="Train")
 plt.plot(degrees, test_r2, ".-", label="Test")
 plt.legend()
 plt.grid()
-plt.title("R2 score")
+plt.title("R2 score Franke function")
 plt.xlabel("Polynomial degree")
 plt.ylabel("$R^2$")
 plt.savefig("figures\R2_score_franke.pdf")
-plt.show()
+#plt.show()
+
+plt.figure(figsize=(8, 5))
+for degree in degrees:
+    plt.scatter(
+            range(beta_values[degree-1].size),  # indices
+            beta_values[degree-1],
+            label=f"{degree=}",
+    )
+plt.legend()
+plt.xticks(np.arange(plt.xlim()[1], step=2))
+plt.title("Beta parameters Franke function")
+plt.xlabel("$i$")
+plt.ylabel(r"$\beta_i$")
+plt.grid()
+plt.savefig("figures\B_franke.pdf")
+#plt.show()

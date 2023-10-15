@@ -4,7 +4,6 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-#from sklearn.metrics import r2_score as R2_score
 from imageio import imread
 import seaborn as sns
 
@@ -34,7 +33,7 @@ def create_design_matrix(x, y, degree):
 
 # Load the terrain
 terrain = imread('SRTM_data_Norway_1.tif')
-n = 50
+n = 100
 terrain = terrain[:n, :n]
 
 # Creates a mesh of image pixels
@@ -49,7 +48,7 @@ mean_scale = np.mean(z)
 std_scale = np.std(z)
 z = (z - mean_scale) / std_scale
 
-max_degree = 6
+max_degree = 5
 
 degrees = np.arange(1, max_degree + 1, 1)
 scaler = StandardScaler()
@@ -77,23 +76,41 @@ for degree in degrees:
 
 
 # Plot MSE
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, train_mse,".--", label="Train")
 plt.plot(degrees, test_mse,".-", label="Test")
 plt.legend()
 plt.grid()
-plt.title("Mean squared error")
+plt.title("MSE for terrain data using OLS")
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
 plt.savefig("figures\MSE_OLS_terrain.pdf")
-plt.show()
+#plt.show()
 
 # Plot R2 scores
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, train_r2, ".--", label="Train")
 plt.plot(degrees, test_r2, ".-", label="Test")
 plt.legend()
 plt.grid()
-plt.title("R2 score")
+plt.title("R2 score terrain data")
 plt.xlabel("Polynomial degree")
 plt.ylabel("$R^2$")
 plt.savefig("figures\R2_score_terrain.pdf")
-plt.show()
+#plt.show()
+
+plt.figure(figsize=(8, 5))
+for degree in degrees:
+    plt.scatter(
+            range(beta_values[degree-1].size),  # indices
+            beta_values[degree-1],
+            label=f"{degree=}",
+    )
+plt.legend()
+plt.xticks(np.arange(plt.xlim()[1], step=2))
+plt.title("Beta parameters terrain data")
+plt.xlabel("$i$")
+plt.ylabel(r"$\beta_i$")
+plt.grid()
+plt.savefig("figures\B_terrain.pdf")
+#plt.show()

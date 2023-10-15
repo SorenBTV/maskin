@@ -94,7 +94,7 @@ for degree in degrees:
 
 
 
-
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_train,".--", label="Error train")
 plt.plot(degrees, error_test, label="Error test")
 plt.xlabel("Polynomial degree")
@@ -103,9 +103,9 @@ plt.title("MSE for the franke function with bootstrap resampling")
 plt.legend()
 plt.grid()
 plt.savefig("figures\MSE_bootstrap_franke.pdf")
-plt.show()
+#plt.show()
 
-
+plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_test,".--", label="Error test")
 plt.plot(degrees, bias, label="Bias")
 plt.plot(degrees, variance, label="Variance")
@@ -115,4 +115,4 @@ plt.ylabel("Error")
 plt.legend()
 plt.grid()
 plt.savefig("figures\Bias_var_franke.pdf")
-plt.show()
+#plt.show()

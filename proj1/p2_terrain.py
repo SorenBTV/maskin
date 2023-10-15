@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.utils import resample
+from sklearn.pipeline import make_pipeline
+from imageio import imread
 
 def MSE(y_data, y_model):
     n = np.size(y_model)
@@ -34,42 +39,32 @@ def create_design_matrix(x, y, degree):
             col += 1
     return X
 
-# Definition of the Franke Function
-def FrankeFunction(x, y):
-    term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2) ** 2) - 0.25 * ((9 * y - 2) ** 2))
-    term2 = 0.75 * np.exp(-((9 * x + 1) ** 2) / 49.0 - 0.1 * (9 * y + 1))
-    term3 = 0.5 * np.exp(-(9 * x - 7) ** 2 / 4.0 - 0.25 * ((9 * y - 3) ** 2))
-    term4 = -0.2 * np.exp(-(9 * x - 4) ** 2 - (9 * y - 7) ** 2)
-    return term1 + term2 + term3 + term4
 
-np.random.seed(123)  # Setting a seed for reproducibility
-n = 100  # Number of data points
+# Load the terrain
+terrain = imread('SRTM_data_Norway_1.tif')
+n = 100
+terrain = terrain[:n, :n]
 
-#Generate random values for x and y within [0, 1]
-x = np.sort(np.random.uniform(0, 1, n))
-y = np.sort(np.random.uniform(0, 1, n))
-x, y = np.meshgrid(x,y)
-x, y = x.ravel(), y.ravel()
+# Creates a mesh of image pixels
+x = np.linspace(0, 1, np.shape(terrain)[0])
+y = np.linspace(0, 1, np.shape(terrain)[1])
+x, y = np.meshgrid(x, y)
+x = x.flatten()
+y = y.flatten()
 
-# Generate the corresponding z values using the Franke function
-z = FrankeFunction(x, y)
-noise = np.random.normal(0, 0.1, n*n)
-z = z + noise
-
-# Create polynomial features up to fifth order
-#max_degree = 14
+z = terrain.ravel()
+mean_scale = np.mean(z)
+std_scale = np.std(z)
+z = (z - mean_scale) / std_scale
 
 # Initialize a StandardScaler
 scaler = StandardScaler()
 
-# Polynomial degrees to consider
-#degrees = np.arange(0, max_degree, 1)
 degrees = np.array([6])
-
-# Values of lambda (regularization strength) to test
 lambda_values = np.logspace(-5, 0, 6)
 test_mse = np.zeros(len(lambda_values))
 train_mse = np.zeros(len(lambda_values))
+
 
 for i in range(len(lambda_values)):
 
@@ -90,11 +85,11 @@ for i in range(len(lambda_values)):
 #print(test_mse[0,:])
 plt.plot(lambda_values,train_mse, ".--", label="train")
 plt.plot(lambda_values,test_mse, ".-", label="test")
-plt.title("MSE for Franke function using ridge regression")
+plt.title("MSE for terrain data using ridge regression")
 plt.xscale("log")
 plt.xlabel(r'$\lambda$')
 plt.ylabel("MSE")
 plt.legend()
 plt.grid()
-plt.savefig("figures\Ridge_frankefunction.pdf", dpi=300)
+plt.savefig("figures\Ridge_terrain.pdf", dpi=300)
 #plt.show()

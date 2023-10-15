@@ -65,7 +65,7 @@ def FrankeFunction(x,y):
 
 
 np.random.seed(123)  # Setting a seed for reproducibility
-n = 25  # Number of data points
+n = 50  # Number of data points
 
 #Generate random values for x and y within [0, 1]
 x = np.sort(np.random.uniform(0, 1, n))
@@ -117,13 +117,13 @@ for degree in degrees:
     test_mse[degree-1] = np.mean(MSE(test[:,2], zpred_test))
 #plt.plot(degrees, train_mse, ".--", label="Train")
 plt.plot(degrees, test_mse, ".-", label="Test")
-plt.title("Mean squared error OLS")
+plt.title("MSE for Franke function using OLS with cross-validation")
 plt.grid()
 plt.legend()
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-plt.savefig("figures/OLS_MSE_cross_validation.png", dpi=300)
-plt.show()
+plt.savefig("figures/OLS_MSE_cross_validation.pdf", dpi=300)
+#plt.show()
 
 #Ridge regression
 plt.figure(figsize=(10, 6))
@@ -156,12 +156,12 @@ heatmap = sns.heatmap(error, annot=True, annot_kws={"size": 7}, cmap="coolwarm",
 heatmap.invert_yaxis()
 heatmap.set_ylabel("Polynomial degree")
 heatmap.set_xlabel(r'$\lambda$')
-heatmap.set_title("MSE heatmap Ridge")
+heatmap.set_title("MSE heatmap for Franke function using ridge with cross-validation")
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Ridge_MSE_heatmap_cross_validation.png", dpi=300)
-plt.show()
+plt.savefig("figures/Ridge_MSE_heatmap_cross_validation.pdf", dpi=300)
+#plt.show()
 
 #Lasso
 test_mse = np.zeros(len(lambdas))
@@ -195,9 +195,9 @@ heatmap = sns.heatmap(error, annot=True, annot_kws={"size": 7}, cmap="coolwarm",
 heatmap.invert_yaxis()
 heatmap.set_ylabel("Polynomial degree")
 heatmap.set_xlabel(r'$\lambda$')
-heatmap.set_title("MSE heatmap Lasso")
+heatmap.set_title("MSE heatmap for Franke function using lasso with cross-validation")
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Lasso_MSE_heatmap_cross_validation.png", dpi=300)
-plt.show()
+plt.savefig("figures/Lasso_MSE_heatmap_cross_validation.pdf", dpi=300)
+#plt.show()
