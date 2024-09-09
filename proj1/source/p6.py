@@ -138,7 +138,6 @@ plt.grid()
 plt.legend()
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-#plt.savefig("proj1\figures/OLS_MSE_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "OLS_MSE_cross_validation.pdf"), dpi=300)
 #plt.show()
 
@@ -183,7 +182,6 @@ heatmap.set_title("MSE heatmap for Franke function using ridge with cross-valida
 
 # Display and save the heatmap
 plt.tight_layout()
-#plt.savefig("proj1\figures/Ridge_MSE_heatmap_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "Ridge_MSE_heatmap_cross_validation.pdf"), dpi=300)
 #plt.show()
 
@@ -229,6 +227,5 @@ heatmap.set_title("MSE heatmap for Franke function using lasso with cross-valida
 
 # Display and save the heatmap
 plt.tight_layout()
-#plt.savefig("proj1\figures/Lasso_MSE_heatmap_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "Lasso_MSE_heatmap_cross_validation.pdf"), dpi=300)
 #plt.show()

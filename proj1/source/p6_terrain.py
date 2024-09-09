@@ -142,7 +142,6 @@ plt.grid()
 plt.legend()
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-#plt.savefig("proj1\figures/OLS_MSE_terrain_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "OLS_MSE_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()
 
@@ -184,7 +183,6 @@ heatmap.set_title("MSE heatmap for terrain data using ridge with cross-validatio
 
 # Display and save the heatmap
 plt.tight_layout()
-#plt.savefig("proj1\figures/Ridge_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "Ridge_MSE_heatmap_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()
 
@@ -231,6 +229,5 @@ heatmap.set_title("MSE heatmap for terrain data using lasso with cross-validatio
 
 # Display and save the heatmap
 plt.tight_layout()
-#plt.savefig("proj1\figures/Lasso_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
 plt.savefig(os.path.join(output_dir, "Lasso_MSE_heatmap_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()
