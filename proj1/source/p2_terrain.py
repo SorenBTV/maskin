@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -91,6 +92,14 @@ for i in range(len(lambda_values)):
     test_mse[i] =MSE(z_test, z_test_pred)
     train_mse[i] =MSE(z_train, z_train_pred)
 
+
+#Plotting and saving figure.
+
+# Getting the current directory of the running script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Defining the path to the figures directory
+output_dir = os.path.join(current_dir, "..", "figures")
+
 # Plot MSE for different lambda values
 plt.plot(lambda_values,train_mse, ".--", label="train")
 plt.plot(lambda_values,test_mse, ".-", label="test")
@@ -100,5 +109,6 @@ plt.xlabel(r'$\lambda$')
 plt.ylabel("MSE")
 plt.legend()
 plt.grid()
-plt.savefig("figures\Ridge_terrain.pdf", dpi=300)
+#plt.savefig("proj1\figures\Ridge_terrain.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "Ridge_terrain.pdf"), dpi=300)
 #plt.show()

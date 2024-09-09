@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -93,6 +94,14 @@ for degree in degrees:
     #print(f"{error_test[degree]:g} = {bias[degree]+variance[degree]:g}")
 
 
+
+#Plotting and saving figures.
+
+# Getting the current directory of the running script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Defining the path to the figures directory
+output_dir = os.path.join(current_dir, "..", "figures")
+
 # Plot the Mean Squared Error for different polynomial degrees
 plt.figure(figsize=(8, 5))
 plt.plot(degrees, error_train,".--", label="Error train")
@@ -102,7 +111,8 @@ plt.ylabel("MSE")
 plt.title("MSE for the terrain data with bootstrap resampling")
 plt.legend()
 plt.grid()
-plt.savefig("figures\MSE_bootstrap_terrain.pdf")
+#plt.savefig("proj1\figures\MSE_bootstrap_terrain.pdf")
+plt.savefig(os.path.join(output_dir, "MSE_bootstrap_terrain.pdf"))
 #plt.show()
 
 # Plot Bias-Variance trade-off
@@ -115,5 +125,6 @@ plt.xlabel("Polynomial degree")
 plt.ylabel("Error")
 plt.legend()
 plt.grid()
-plt.savefig("figures\Bias_var_terrain.pdf")
+#plt.savefig("proj1\figures\Bias_var_terrain.pdf")
+plt.savefig(os.path.join(output_dir, "Bias_var_terrain.pdf"))
 #plt.show()

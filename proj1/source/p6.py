@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
@@ -8,6 +9,11 @@ from sklearn.metrics import mean_squared_error
 import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
+
+# Getting the current directory of the running script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Defining the path to the figures directory
+output_dir = os.path.join(current_dir, "..", "figures")
 
 # Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data,y_model):
@@ -132,7 +138,8 @@ plt.grid()
 plt.legend()
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-plt.savefig("figures/OLS_MSE_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/OLS_MSE_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "OLS_MSE_cross_validation.pdf"), dpi=300)
 #plt.show()
 
 
@@ -176,7 +183,8 @@ heatmap.set_title("MSE heatmap for Franke function using ridge with cross-valida
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Ridge_MSE_heatmap_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/Ridge_MSE_heatmap_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "Ridge_MSE_heatmap_cross_validation.pdf"), dpi=300)
 #plt.show()
 
 
@@ -221,5 +229,6 @@ heatmap.set_title("MSE heatmap for Franke function using lasso with cross-valida
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Lasso_MSE_heatmap_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/Lasso_MSE_heatmap_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "Lasso_MSE_heatmap_cross_validation.pdf"), dpi=300)
 #plt.show()

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
@@ -11,6 +12,12 @@ from sklearn.metrics import mean_squared_error
 import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
+
+# Getting the current directory of the running script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Defining the path to the figures directory
+output_dir = os.path.join(current_dir, "..", "figures")
+
 
 # Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data,y_model):
@@ -135,7 +142,8 @@ plt.grid()
 plt.legend()
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-plt.savefig("figures/OLS_MSE_terrain_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/OLS_MSE_terrain_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "OLS_MSE_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()
 
 #Ridge regression
@@ -176,7 +184,8 @@ heatmap.set_title("MSE heatmap for terrain data using ridge with cross-validatio
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Ridge_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/Ridge_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "Ridge_MSE_heatmap_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()
 
 
@@ -212,6 +221,7 @@ for i in range(len(lambdas)):
         test_mse[degree-1] = mean_squared_error(test[:,2], ztest_pred)
     error[:, i] = test_mse
 
+
 # Create a heatmap of the Mean Squared Error for Lasso regression
 heatmap = sns.heatmap(error, annot=True, annot_kws={"size": 7}, cmap="coolwarm", xticklabels=lambdas, yticklabels=degrees, cbar_kws={'label': 'Mean squared error'})
 heatmap.invert_yaxis()
@@ -221,5 +231,6 @@ heatmap.set_title("MSE heatmap for terrain data using lasso with cross-validatio
 
 # Display and save the heatmap
 plt.tight_layout()
-plt.savefig("figures/Lasso_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
+#plt.savefig("proj1\figures/Lasso_MSE_heatmap_terrain_cross_validation.pdf", dpi=300)
+plt.savefig(os.path.join(output_dir, "Lasso_MSE_heatmap_terrain_cross_validation.pdf"), dpi=300)
 #plt.show()

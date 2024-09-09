@@ -1,9 +1,13 @@
+import os
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.linear_model import Lasso
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.utils import resample
+from sklearn.pipeline import make_pipeline
+from imageio import imread
 
 # Define a function to calculate Mean Squared Error (MSE)
 def MSE(y_data, y_model):
@@ -24,33 +28,28 @@ def create_design_matrix(x, y, degree):
             col += 1
     return X
 
-# Definition of the Franke Function
-def FrankeFunction(x, y):
-    term1 = 0.75 * np.exp(-(0.25 * (9 * x - 2) ** 2) - 0.25 * ((9 * y - 2) ** 2))
-    term2 = 0.75 * np.exp(-((9 * x + 1) ** 2) / 49.0 - 0.1 * (9 * y + 1))
-    term3 = 0.5 * np.exp(-(9 * x - 7) ** 2 / 4.0 - 0.25 * ((9 * y - 3) ** 2))
-    term4 = -0.2 * np.exp(-(9 * x - 4) ** 2 - (9 * y - 7) ** 2)
-    return term1 + term2 + term3 + term4
+# Load the terrain data from an image file
+terrain = imread('SRTM_data_Norway_1.tif')
+n = 100
+terrain = terrain[:n, :n]
 
-np.random.seed(123)  # Setting a seed for reproducibility
-n = 100  # Number of data points
+# Creates a mesh of image pixels
+x = np.linspace(0, 1, np.shape(terrain)[0])
+y = np.linspace(0, 1, np.shape(terrain)[1])
+x, y = np.meshgrid(x, y)
+x = x.flatten()
+y = y.flatten()
 
-#Generate random values for x and y within [0, 1]
-x = np.sort(np.random.uniform(0, 1, n))
-y = np.sort(np.random.uniform(0, 1, n))
-x, y = np.meshgrid(x,y)
-x, y = x.ravel(), y.ravel()
-
-# Generate the corresponding z values using the Franke function
-z = FrankeFunction(x, y)
-noise = np.random.normal(0, 0.1, n*n)
-z = z + noise
-
-# Maximum polynomial degree
-max_degree = 14
+z = terrain.ravel()
+mean_scale = np.mean(z)
+std_scale = np.std(z)
+z = (z - mean_scale) / std_scale
 
 # Initialize a StandardScaler
 scaler = StandardScaler()
+
+# Maximum polynomial degree
+max_degree = 14
 
 # Polynomial degrees to consider
 degrees = np.arange(1, max_degree+1, 1)
@@ -78,19 +77,27 @@ for degree in degrees:
     z_train_pred = lasso.predict(X_train_scaled)
     z_test_pred = lasso.predict(X_test_scaled)
 
-    # Calculate and store Mean Squared Error (MSE)
+    # Calculate and store Mean Squared Error and R-squared (R2) scores
     train_mse[degree-1] = mean_squared_error(z_train, z_train_pred)
     test_mse[degree-1] = mean_squared_error(z_test, z_test_pred)
     train_r2[degree-1] = r2_score(z_train, z_train_pred)
     test_r2[degree-1] = r2_score(z_test, z_test_pred)
+
+#Plotting and saving figure.
+
+# Getting the current directory of the running script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Defining the path to the figures directory
+output_dir = os.path.join(current_dir, "..", "figures")
 
 # Plot MSE for different polynomial degrees
 plt.plot(degrees, train_mse,".--", label="Train")
 plt.plot(degrees, test_mse,".-", label="Test")
 plt.legend()
 plt.grid()
-plt.title("MSE for Franke function using lasso regression")
+plt.title("MSE for terrain data using lasso regression")
 plt.xlabel("Polynomial degree")
 plt.ylabel("MSE")
-plt.savefig("figures\MSE_Lasso_franke.pdf")
+#plt.savefig("proj1\figures\MSE_Lasso_terrain.pdf")
+plt.savefig(os.path.join(output_dir, "MSE_Lasso_terrain.pdf"))
 #plt.show()
