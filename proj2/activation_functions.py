@@ -23,7 +23,7 @@ def RELU(X):
 
 
 def LRELU(X):
-    delta = 10e-4
+    delta = 10e-3
     return np.where(X > np.zeros(X.shape), X, delta * X)
 
 

@@ -55,6 +55,7 @@ class FFNN:
         self.a_matrices = list()
         self.z_matrices = list()
         self.classification = None
+        self.gradients = None  # Initialize a variable to store gradients
 
         self.reset_weights()
         self._set_classification()
@@ -64,7 +65,7 @@ class FFNN:
         X: np.ndarray,
         t: np.ndarray,
         scheduler: Scheduler,
-        batches: int = 1,
+        batches: int = 16,
         epochs: int = 100,
         lam: float = 0,
         X_val: np.ndarray = None,
@@ -392,6 +393,11 @@ class FFNN:
 
             # update weights and bias
             self.weights[i] -= update_matrix
+
+            self.gradients = {
+                "weights": [grad for grad in gradient_weights],  # Assuming `weight_gradients` is a list of gradients for each layer
+                "biases": [grad for grad in gradient_bias]  # Assuming `bias_gradients` for biases
+            }
 
     def _accuracy(self, prediction: np.ndarray, target: np.ndarray):
         """

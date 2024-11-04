@@ -1,51 +1,135 @@
-from NN import *
+import os
+import numpy as np
+from autograd import grad
+import autograd.numpy as anp
 import matplotlib.pyplot as plt
-from sklearn.datasets import load_wine
+from random import random, seed
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-import seaborn as sns
-
-wine = load_wine()
-
-inputs = wine.data
-outputs = wine.target
-outputs = outputs.reshape(outputs.shape[0], 1)
-
-labels = wine.feature_names
+from cost import *
+from scheduler import *
+from functions import *
+from sklearn.datasets import load_wine
 
 
-X_train, X_test, y_train, y_test = train_test_split(inputs, outputs, test_size=0.2, random_state=42)
 
-scaler = MinMaxScaler()
-scaler.fit(X_train)
-X_train = scaler.transform(X_train)
+# Multi-class logistic regression with SGD
+def logistic_regression_sgd(X, y, scheduler=None, learning_rate=0.001, epochs=100, batch_size=8, lambda_val=1e-5, mom=0.0, seed=123):
+    n_samples, n_features = X.shape
+    n_classes = y.shape[1]  # Number of classes after one-hot encoding
+    weights = np.zeros((n_features, n_classes))  # Initialize weights for each class
+    cost_gradient = grad(lambda w, y, X: CostCrossEntropy(y)(softmax(X @ w)))  # Gradient of multi-class logistic cost
+
+    #scheduler initialization
+    if scheduler=="ada":
+        scheduler = Adagrad(learning_rate)
+    elif scheduler=="rms":
+        scheduler = RMS_prop(learning_rate, rho=0.9)
+    elif scheduler=="adam":
+        scheduler = Adam(learning_rate, rho=0.9, rho2=0.999)
+
+    # SGD loop
+    for epoch in range(epochs):
+        np.random.seed(seed + epoch)
+        indices = np.random.permutation(n_samples)
+        X_shuffled, y_shuffled = X[indices], y[indices]
+
+        for i in range(0, n_samples, batch_size):
+            X_batch = X_shuffled[i:i + batch_size]
+            y_batch = y_shuffled[i:i + batch_size]
+
+            gradients = cost_gradient(weights, y_batch, X_batch) + lambda_val * weights * mom
+            #Use scheduler to update gradient.
+            if scheduler is not None:
+                weights -= scheduler.update_change(gradients)
+            else:
+                weights -= learning_rate * gradients
+
+    return weights
+
+
+def train(X_train, t_train, scheduler=None, learning_rate=0.001, epochs=100, batch_size=8, lambda_val=1e-5):
+    # Train logistic regression model
+    weights = logistic_regression_sgd(X_train, t_train, scheduler=scheduler, learning_rate=learning_rate, epochs=epochs, batch_size=batch_size, lambda_val=lambda_val)
+
+    # Test model
+    t_pred = predict(X_test, weights)
+    t_test_labels = np.argmax(t_test, axis=1)  # Convert one-hot encoded t_test to labels for accuracy
+    accuracy = np.mean(t_pred == t_test_labels)
+
+    return t_pred, t_test_labels
+
+
+# Predict function for multi-class
+def predict(X, weights):
+    logits = X @ weights
+    probabilities = softmax(logits)
+    return np.argmax(probabilities, axis=1)  # Return class with highest probability
+
+
+
+def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=8, mom=0.0, title=None):
+    accuracy_matrix = np.zeros((len(eta_values), len(lambda_values)))
+
+    for i, eta in enumerate(eta_values):
+        for j, lam in enumerate(lambda_values):
+            t_pred, t_test_labels = train(X_train, t_train, scheduler=scheduler, learning_rate=eta, epochs=epochs, batch_size=batch_size, lambda_val=lam)
+
+            weights = logistic_regression_sgd(X_train, t_train, learning_rate=eta, lambda_val=lam, mom=mom)
+            t_pred = predict(X_test, weights)
+            accuracy = np.mean(t_pred == t_test_labels)
+            accuracy_matrix[i, j] = accuracy
+            #print(f"eta: {eta}, lambda: {lam}, accuracy: {accuracy:.4f}")
+
+    # Plot heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(accuracy_matrix, annot=True, fmt=".4f", cmap="viridis",
+                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, vmin=0.8, vmax=1.0)
+    plt.xlabel("Lambda")
+    plt.ylabel("Learning Rate (Eta)")
+    plt.title("Accuracy of Logistic Regression for Different Eta and Lambda Values")
+
+    save_dir = "figs"
+    # Check if the save directory exists, if not, create it
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    # Save the figure
+    save_path = os.path.join(save_dir, title)
+    plt.savefig(save_path, bbox_inches='tight')
+    print(f"Figure saved to {save_path}")
+    #plt.show()
+
+    return accuracy_matrix
+
+
+
+
+np.random.seed(123)
+seed(123)
+
+data = load_wine()
+X, y = data.data, data.target.reshape(-1, 1)
+
+encoder = OneHotEncoder(sparse=False)
+y = encoder.fit_transform(y)
+
+X_train, X_test, t_train, t_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-#one hot encode outputs
-onehot = OneHotEncoder(sparse=False)
-y_train = onehot.fit_transform(y_train)
-y_test = onehot.transform(y_test)
 
 
-output_nodes = 3
-input_nodes = X_train.shape[1]
 
 
-intermediate_nodes = ()
-dimensions = (input_nodes,  *intermediate_nodes, output_nodes)
+eta_values = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 0.9]
+lambda_values = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e-0]
 
-#print(inputs.shape)
-#print(labels)
-my_network = FFNN(dimensions, output_func=softmax, cost_func=CostCrossEntropy, seed=123)
 
-my_network.reset_weights() # reset weights such that previous runs or reruns don't affect the weights
-
-#scheduler = Constant(eta=1e-3)
-scheduler = Adam(eta=1e-2, rho=0.9, rho2=0.999)
-scores = my_network.fit(X_train, y_train, scheduler, epochs=1000, X_val=X_test, t_val=y_test)
-
-print("scores", scores.keys())
-
-sns.lineplot(x=range(len(scores["train_accs"])), y=scores["train_accs"], label="Training accuracy")
-sns.lineplot(x=range(len(scores["val_accs"])), y=scores["val_accs"], label="Test accuracy")
-plt.show()
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_none.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, mom=0.9, title="log_reg_class_heatmap_eta_lambda_mom.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="adam", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_adam.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="ada", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_ada.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="rms", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_rms.pdf")
