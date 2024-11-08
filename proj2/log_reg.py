@@ -18,7 +18,7 @@ def logistic_regression_sgd(X, y, scheduler=None, learning_rate=0.001, epochs=10
     n_samples, n_features = X.shape
     n_classes = y.shape[1]  # Number of classes after one-hot encoding
     weights = np.zeros((n_features, n_classes))  # Initialize weights for each class
-    cost_gradient = grad(lambda w, y, X: CostCrossEntropy(y)(softmax(X @ w)))  # Gradient of multi-class logistic cost
+    cost_gradient = grad(lambda w, y, X: CostLogReg(y)(softmax(X @ w)))  # Gradient of multi-class logistic cost
 
     #scheduler initialization
     if scheduler=="ada":
@@ -68,7 +68,7 @@ def predict(X, weights):
 
 
 
-def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=8, mom=0.0, title=None):
+def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=8, mom=0.0, title=None, savename=None):
     accuracy_matrix = np.zeros((len(eta_values), len(lambda_values)))
 
     for i, eta in enumerate(eta_values):
@@ -84,10 +84,10 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
     # Plot heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(accuracy_matrix, annot=True, fmt=".4f", cmap="viridis",
-                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, vmin=0.8, vmax=1.0)
-    plt.xlabel("Lambda")
-    plt.ylabel("Learning Rate (Eta)")
-    plt.title("Accuracy of Logistic Regression for Different Eta and Lambda Values")
+                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 12}, vmin=0.8, vmax=1.0)
+    plt.xlabel("Lambda", fontsize=14)
+    plt.ylabel("Learning Rate (Eta)", fontsize=14)
+    plt.title(f"Accuracy of Logistic Regression using {title}", fontsize=16)
 
     save_dir = "figs"
     # Check if the save directory exists, if not, create it
@@ -95,7 +95,7 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
         os.makedirs(save_dir)
 
     # Save the figure
-    save_path = os.path.join(save_dir, title)
+    save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
     #plt.show()
@@ -128,8 +128,8 @@ eta_values = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 0.9]
 lambda_values = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e-0]
 
 
-heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_none.pdf")
-heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, mom=0.9, title="log_reg_class_heatmap_eta_lambda_mom.pdf")
-heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="adam", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_adam.pdf")
-heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="ada", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_ada.pdf")
-heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="rms", epochs=100, batch_size=10, title="log_reg_class_heatmap_eta_lambda_rms.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, title="no scheduler", savename="log_reg_class_heatmap_eta_lambda_none.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler=None, epochs=100, batch_size=10, mom=0.9, title="momentum", savename="log_reg_class_heatmap_eta_lambda_mom.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="adam", epochs=100, batch_size=10, title="Adam", savename="log_reg_class_heatmap_eta_lambda_adam.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="ada", epochs=100, batch_size=10, title="Adagrad", savename="log_reg_class_heatmap_eta_lambda_ada.pdf")
+heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler="rms", epochs=100, batch_size=10, title="RMSprop", savename="log_reg_class_heatmap_eta_lambda_rms.pdf")

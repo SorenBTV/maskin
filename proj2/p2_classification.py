@@ -10,7 +10,7 @@ import seaborn as sns
 def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, scheduler_class, scheduler_params, hidden_func=sigmoid,
                                  output_func=identity, cost_func=CostOLS, learning_rate=0.0005,
-                                 lambda_val=0.0001, epochs=100, seed=123, title=None):
+                                 lambda_val=1e-5, epochs=100, seed=123, title=None, savename=None):
 
     print(f"Working on nodes/layer plot using {scheduler_class} and hidden function {hidden_func}")
     # Initialize result matrix for accuracy
@@ -36,10 +36,11 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
     # Plot heatmap for accuracy
     plt.figure(figsize=(10, 8))
     sns.heatmap(accuracy_results, annot=True, fmt=".2f", cmap="viridis", xticklabels=layer_options,
-                yticklabels=neuron_options, cbar_kws={'label': 'Accuracy'}, vmin=0.8, vmax=1.0)
-    plt.title("Accuracy for Nodes vs Layers")
-    plt.xlabel("Layers")
-    plt.ylabel("Nodes per Layer")
+                yticklabels=neuron_options, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 14}, vmin=0.8, vmax=1.0)
+    plt.title(f"Accuracy for Nodes vs Layers using {title}", fontsize=16)
+    plt.xlabel("Layers", fontsize=14)
+    plt.ylabel("Nodes per Layer", fontsize=14)
+
 
     save_dir = "figs"
     # Check if the save directory exists, if not, create it
@@ -47,7 +48,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
         os.makedirs(save_dir)
 
     # Save the figure
-    save_path = os.path.join(save_dir, title)
+    save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
 
@@ -58,7 +59,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
 
 def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler_class,
                                  scheduler_params, neurons=20, layers=1, hidden_func=sigmoid, output_func=softmax,
-                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title=None):
+                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title=None, savename=None):
 
     # Initialize result matrix for accuracy
     accuracy_results = np.zeros((len(eta_values), len(lambda_values)))
@@ -83,10 +84,10 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
     # Plot heatmap for accuracy
     plt.figure(figsize=(10, 8))
     sns.heatmap(accuracy_results, annot=True, fmt=".2f", cmap="viridis", xticklabels=np.log10(lambda_values),
-                yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, vmin=0.8, vmax=1.0)
-    plt.title("Accuracy for Eta vs Lambda")
-    plt.xlabel("log10(Lambda)")
-    plt.ylabel("Eta")
+                yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 14}, vmin=0.8, vmax=1.0)
+    plt.title(f"Accuracy for Eta vs Lambda using {title}", fontsize=16)
+    plt.xlabel("log10(Lambda)", fontsize=14)
+    plt.ylabel("Eta", fontsize=14)
 
     save_dir = "figs"
     # Check if the save directory exists, if not, create it
@@ -94,7 +95,7 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
         os.makedirs(save_dir)
 
     # Save the figure
-    save_path = os.path.join(save_dir, title)
+    save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
 
@@ -145,19 +146,19 @@ scheduler_params_adam = {"rho": 0.9, "rho2":0.999}
 heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=sigmoid,
                                  output_func=softmax, cost_func=CostCrossEntropy, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_accuracy_nodes_layers_class_sigmoid.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="sigmoid", savename="Heatplot_accuracy_nodes_layers_class_sigmoid.pdf")
 
 
 heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=RELU,
                                  output_func=softmax, cost_func=CostCrossEntropy, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_accuracy_nodes_layers_class_RELU.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="RELU", savename="Heatplot_accuracy_nodes_layers_class_RELU.pdf")
 
 
 heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=LRELU,
                                  output_func=softmax, cost_func=CostCrossEntropy, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_accuracy_nodes_layers_class_LRELU.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="LRELU", savename="Heatplot_accuracy_nodes_layers_class_LRELU.pdf")
 
 
 
@@ -169,14 +170,14 @@ lambda_values = np.logspace(-5, -1, 5)
 
 heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                  scheduler_params_adam, neurons=20, layers=1, hidden_func=sigmoid, output_func=softmax,
-                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="Heatplot_accuracy_eta_lmbda_class_sigmoid.pdf")
+                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="sigmoid", savename="Heatplot_accuracy_eta_lmbda_class_sigmoid.pdf")
 
 
 heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                  scheduler_params_adam, neurons=20, layers=1, hidden_func=RELU, output_func=softmax,
-                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="Heatplot_accuracy_eta_lmbda_class_RELU.pdf")
+                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="RELU", savename="Heatplot_accuracy_eta_lmbda_class_RELU.pdf")
 
 
 heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                  scheduler_params_adam, neurons=20, layers=1, hidden_func=LRELU, output_func=softmax,
-                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="Heatplot_accuracy_eta_lmbda_class_LRELU.pdf")
+                                 cost_func=CostCrossEntropy, epochs=100, seed=123, title="LRELU", savename="Heatplot_accuracy_eta_lmbda_class_LRELU.pdf")

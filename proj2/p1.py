@@ -170,7 +170,7 @@ def plot_batch_size(batch_list, epochs=100, momentum=0.0, scheduler=None, learni
 
     plt.figure()
     for i, batch_size in enumerate(batch_list):
-        theta, mse, r2 = SGD(X, y, M=batch_size, momentum=momentum, scheduler=scheduler, learning_rate=0.01, Ridge=Ridge)
+        theta, mse, r2 = SGD(X, y, M=batch_size, momentum=momentum, scheduler=scheduler, learning_rate=learning_rate, Ridge=Ridge)
         plt.plot(range(epochs), mse, label=f"batch_size={batch_size}")
 
     plt.xlabel("Epochs")

@@ -16,7 +16,7 @@ from activation_functions import *
 def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, scheduler_class, scheduler_params, hidden_func=sigmoid,
                                  output_func=identity, cost_func=CostOLS, learning_rate=0.01,
-                                 lambda_val=0.0001, epochs=100, seed=123, title=None):
+                                 lambda_val=0.0001, epochs=100, seed=123, title=None, savename=None):
 
     # Initialize result matrices
     mse_results = np.zeros((len(neuron_options), len(layer_options)))  # For number of neurons vs layers
@@ -50,32 +50,32 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
 
 
     # Create side-by-side subplots for MSE and R² heatmaps
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))  # Adjust figsize as needed
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))  # Adjust figsize as needed
 
     # Plot MSE heatmap for eta vs lambda
     sns.heatmap(mse_results, annot=True, fmt=".3f", cmap="magma", xticklabels=layer_options, yticklabels=neuron_options,
-                cbar_kws={'label': 'MSE'}, ax=ax1)
-    ax1.set_title("MSE for neurons per layer vs. layers")
-    ax1.set_xlabel("Neurons per layer")
-    ax1.set_ylabel("Layers")
+                cbar_kws={'label': 'MSE'}, annot_kws={"size": 14}, ax=ax1)
+    ax1.set_title(f"MSE for neurons per layer vs. layers using {title}", fontsize=16)
+    ax1.set_xlabel("Neurons per layer", fontsize=14)
+    ax1.set_ylabel("Layers", fontsize=14)
 
     # Plot R² heatmap for eta vs lambda
     sns.heatmap(r2_results, annot=True, fmt=".2f", cmap="magma", xticklabels=layer_options, yticklabels=neuron_options,
-                cbar_kws={'label': 'R²'}, ax=ax2, vmin=0, vmax=1)
-    ax2.set_title("R² for neurons per layer vs. layers")
-    ax2.set_xlabel("Neurons per layer")
-    ax2.set_ylabel("Layers")
+                cbar_kws={'label': 'R²'}, annot_kws={"size": 14}, ax=ax2, vmin=0, vmax=1)
+    ax2.set_title(f"R^2-score for neurons per layer vs. layers using {title}", fontsize=16)
+    ax2.set_xlabel("Neurons per layer", fontsize=14)
+    ax2.set_ylabel("Layers", fontsize=14)
 
     plt.tight_layout()  # Adjust layout to avoid overlap
 
-    plt.subplots_adjust(hspace=0.4)
+    plt.subplots_adjust(hspace=0.15)
     save_dir = "figs"
     # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     # Save the figure
-    save_path = os.path.join(save_dir, title)
+    save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
     #plt.show()
@@ -86,7 +86,7 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
 
 def heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, scheduler_class,
                                scheduler_params, neurons=80, layers=4, hidden_func=None, output_func=None,
-                               cost_func=None, epochs=100, seed=123, title=None):
+                               cost_func=None, epochs=100, seed=123, title=None, savename=None):
     # Initialize result matrices
     mse_results = np.zeros((len(eta_values), len(lambda_values)))
     r2_results = np.zeros((len(eta_values), len(lambda_values)))
@@ -115,32 +115,32 @@ def heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lam
             r2_results[i, j] = r2
 
     # Create side-by-side subplots for MSE and R² heatmaps
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))  # Adjust figsize as needed
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))  # Adjust figsize as needed
 
     # Plot MSE heatmap for eta vs lambda
     sns.heatmap(mse_results, annot=True, fmt=".3f", cmap="magma", xticklabels=np.log10(lambda_values), yticklabels=eta_values,
-                cbar_kws={'label': 'MSE'}, ax=ax1)
-    ax1.set_title("MSE for eta vs lambda")
-    ax1.set_xlabel("Lambda")
-    ax1.set_ylabel("Eta")
+                cbar_kws={'label': 'MSE'}, annot_kws={"size": 14}, ax=ax1)
+    ax1.set_title(f"MSE for eta vs lambda using {title}", fontsize=16)
+    ax1.set_xlabel("Lambda", fontsize=14)
+    ax1.set_ylabel("Eta", fontsize=14)
 
     # Plot R² heatmap for eta vs lambda
     sns.heatmap(r2_results, annot=True, fmt=".2f", cmap="magma", xticklabels=np.log10(lambda_values), yticklabels=eta_values,
-                cbar_kws={'label': 'R²'}, ax=ax2, vmin=0, vmax=1)
-    ax2.set_title("R² for eta vs lambda")
-    ax2.set_xlabel("Lambda")
-    ax2.set_ylabel("Eta")
+                cbar_kws={'label': 'R²'}, annot_kws={"size": 14}, ax=ax2, vmin=0, vmax=1)
+    ax2.set_title(f"R^2-score for eta vs lambda using {title}", fontsize=16)
+    ax2.set_xlabel("Lambda", fontsize=14)
+    ax2.set_ylabel("Eta", fontsize=14)
 
-    plt.tight_layout()  # Adjust layout to avoid overlap
+    plt.tight_layout()
 
-    plt.subplots_adjust(hspace=0.4)
+    plt.subplots_adjust(hspace=0.15)
     save_dir = "figs"
     # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     # Save the figure
-    save_path = os.path.join(save_dir, title)
+    save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
     #plt.show()
@@ -183,17 +183,17 @@ scheduler_params_adam = {"rho": 0.9, "rho2":0.999}
 heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=sigmoid,
                                  output_func=identity, cost_func=CostOLS, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_MSE_R2_neurons_layers_sigmoid.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="Sigmoid", savename="Heatplot_MSE_R2_neurons_layers_sigmoid.pdf")
 
 heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=RELU,
                                  output_func=identity, cost_func=CostOLS, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_MSE_R2_neurons_layers_RELU.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="RELU", savename="Heatplot_MSE_R2_neurons_layers_RELU.pdf")
 
 heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_options,
                                  layer_options, Adam, scheduler_params_adam, hidden_func=LRELU,
                                  output_func=identity, cost_func=CostOLS, learning_rate=0.01,
-                                 lambda_val=1e-5, epochs=100, seed=123, title="Heatplot_MSE_R2_neurons_layers_LRELU.pdf")
+                                 lambda_val=1e-5, epochs=100, seed=123, title="LRELU", savename="Heatplot_MSE_R2_neurons_layers_LRELU.pdf")
 
 
 
@@ -204,14 +204,14 @@ eta_values = [0.001, 0.005, 0.01, 0.05, 0.1]
 lambda_values = np.logspace(-5, -1, 5)
 heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                scheduler_params_adam, neurons=20, layers=1, hidden_func=sigmoid, output_func=identity,
-                               cost_func=CostOLS, epochs=100, seed=123, title="Heatplot_MSE_R2_eta_lambda_sigmoid.pdf")
+                               cost_func=CostOLS, epochs=100, seed=123, title="Sigmoid", savename="Heatplot_MSE_R2_eta_lambda_sigmoid.pdf")
 
 
 heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                scheduler_params_adam, neurons=20, layers=1, hidden_func=RELU, output_func=identity,
-                               cost_func=CostOLS, epochs=100, seed=123, title="Heatplot_MSE_R2_eta_lambda_RELU.pdf")
+                               cost_func=CostOLS, epochs=100, seed=123, title="RELU", savename="Heatplot_MSE_R2_eta_lambda_RELU.pdf")
 
 
 heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lambda_values, Adam,
                                scheduler_params_adam, neurons=20, layers=1, hidden_func=LRELU, output_func=identity,
-                               cost_func=CostOLS, epochs=100, seed=123, title="Heatplot_MSE_R2_eta_lambda_LRELU.pdf")
+                               cost_func=CostOLS, epochs=100, seed=123, title="LRELU", savename="Heatplot_MSE_R2_eta_lambda_LRELU.pdf")
