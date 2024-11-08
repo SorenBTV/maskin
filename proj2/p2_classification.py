@@ -20,7 +20,6 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
 
     for i, neurons in enumerate(neuron_options):
         for j, layers in enumerate(layer_options):
-            # Set up network with current neurons and layers
             dimensions = (X_train.shape[1],) + (neurons,) * layers + (3,)
             network = FFNN(dimensions, hidden_func=hidden_func, output_func=output_func, cost_func=cost_func, seed=seed)
             network.reset_weights()
@@ -30,7 +29,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
             # Train network
             scores = network.fit(X_train, t_train, scheduler, lam=lambda_val, epochs=epochs, X_val=X_test, t_val=t_test)
 
-            # Store final validation accuracy
+            # Store final accuracy
             accuracy_results[i, j] = scores['val_accs'][-1]  # Last epoch's accuracy
 
     # Plot heatmap for accuracy
@@ -43,11 +42,9 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
 
 
     save_dir = "figs"
-    # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the figure
     save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
@@ -90,11 +87,9 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
     plt.ylabel("Eta", fontsize=14)
 
     save_dir = "figs"
-    # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the figure
     save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")

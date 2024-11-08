@@ -16,9 +16,9 @@ from sklearn.datasets import load_wine
 # Multi-class logistic regression with SGD
 def logistic_regression_sgd(X, y, scheduler=None, learning_rate=0.001, epochs=100, batch_size=8, lambda_val=1e-5, mom=0.0, seed=123):
     n_samples, n_features = X.shape
-    n_classes = y.shape[1]  # Number of classes after one-hot encoding
+    n_classes = y.shape[1]
     weights = np.zeros((n_features, n_classes))  # Initialize weights for each class
-    cost_gradient = grad(lambda w, y, X: CostLogReg(y)(softmax(X @ w)))  # Gradient of multi-class logistic cost
+    cost_gradient = grad(lambda w, y, X: CostLogReg(y)(softmax(X @ w)))
 
     #scheduler initialization
     if scheduler=="ada":
@@ -54,17 +54,17 @@ def train(X_train, t_train, scheduler=None, learning_rate=0.001, epochs=100, bat
 
     # Test model
     t_pred = predict(X_test, weights)
-    t_test_labels = np.argmax(t_test, axis=1)  # Convert one-hot encoded t_test to labels for accuracy
+    t_test_labels = np.argmax(t_test, axis=1)
     accuracy = np.mean(t_pred == t_test_labels)
 
     return t_pred, t_test_labels
 
 
-# Predict function for multi-class
+# Predict function
 def predict(X, weights):
     logits = X @ weights
     probabilities = softmax(logits)
-    return np.argmax(probabilities, axis=1)  # Return class with highest probability
+    return np.argmax(probabilities, axis=1)
 
 
 
@@ -90,11 +90,9 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
     plt.title(f"Accuracy of Logistic Regression using {title}", fontsize=16)
 
     save_dir = "figs"
-    # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the figure
     save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")

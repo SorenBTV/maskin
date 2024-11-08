@@ -19,7 +19,7 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
                                  lambda_val=0.0001, epochs=100, seed=123, title=None, savename=None):
 
     # Initialize result matrices
-    mse_results = np.zeros((len(neuron_options), len(layer_options)))  # For number of neurons vs layers
+    mse_results = np.zeros((len(neuron_options), len(layer_options)))
     r2_results = np.zeros((len(neuron_options), len(layer_options)))
 
     # Set random seed
@@ -33,7 +33,6 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
             network = FFNN((X_train.shape[1],) + (neurons,) * layers + (1,), hidden_func=hidden_func, output_func=output_func, cost_func=cost_func, seed=seed)
             network.reset_weights()
 
-            # Initialize the scheduler dynamically based on the passed class and params
             scheduler = scheduler_class(eta=learning_rate, **scheduler_params)
 
             # Train the network
@@ -49,8 +48,7 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
             r2_results[i, j] = r2
 
 
-    # Create side-by-side subplots for MSE and R² heatmaps
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))  # Adjust figsize as needed
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))
 
     # Plot MSE heatmap for eta vs lambda
     sns.heatmap(mse_results, annot=True, fmt=".3f", cmap="magma", xticklabels=layer_options, yticklabels=neuron_options,
@@ -66,15 +64,13 @@ def heatplot_MSE_R2_nodes_layers(X_train, t_train, X_test, t_test, neuron_option
     ax2.set_xlabel("Neurons per layer", fontsize=14)
     ax2.set_ylabel("Layers", fontsize=14)
 
-    plt.tight_layout()  # Adjust layout to avoid overlap
+    plt.tight_layout()
 
     plt.subplots_adjust(hspace=0.15)
     save_dir = "figs"
-    # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the figure
     save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
@@ -114,8 +110,7 @@ def heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lam
             mse_results[i, j] = mse
             r2_results[i, j] = r2
 
-    # Create side-by-side subplots for MSE and R² heatmaps
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))  # Adjust figsize as needed
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 12))
 
     # Plot MSE heatmap for eta vs lambda
     sns.heatmap(mse_results, annot=True, fmt=".3f", cmap="magma", xticklabels=np.log10(lambda_values), yticklabels=eta_values,
@@ -135,11 +130,9 @@ def heatplot_MSE_R2_eta_lambda(X_train, t_train, X_test, t_test, eta_values, lam
 
     plt.subplots_adjust(hspace=0.15)
     save_dir = "figs"
-    # Check if the save directory exists, if not, create it
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Save the figure
     save_path = os.path.join(save_dir, savename)
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Figure saved to {save_path}")
