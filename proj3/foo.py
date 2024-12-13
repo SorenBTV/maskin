@@ -264,7 +264,7 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
 
 
 #Preprocess dataset
-file_path = 'C:\\Users\\soren\\maskin\\proj3\\dataset\\dataset'
+file_path = "./dataset/dataset"
 X_train, X_test, y_train, y_test = preprocess_dataset(file_path)
 # Reshape y to be 2D, as required in FFNN
 y_train = y_train.values.reshape(-1, 1)

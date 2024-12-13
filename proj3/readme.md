@@ -1,7 +1,7 @@
 This is the project folder for project 3 of FYS-STK4155. .
 
 
-To reproduce: Just run all codes by doing "python "filename.py", and all the plots in the figs folder should be recreated as is.
+To reproduce: Just run all codes by doing "python "filename.py"", and all the plots in the figs folder should be recreated as is.
 
 
 Mains:

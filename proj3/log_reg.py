@@ -12,6 +12,7 @@ from sklearn.compose import ColumnTransformer
 from cost import *
 from scheduler import *
 from scipy.io import arff
+import seaborn as sns
 import warnings
 
 # Custom warning handler
@@ -298,12 +299,12 @@ np.random.seed(123)
 seed(123)
 
 #Preprocess dataset
-file_path = 'C:\\Users\\soren\\maskin\\proj3\\dataset\\dataset'
+file_path = "./dataset/dataset"
 X_train, X_test, y_train, y_test = preprocess_dataset(file_path)
 
 
 
-eta_values = [0.001, 0.01, 0.05, 0.1, 0.5]
+eta_values = [0.01, 0.05, 0.1, 0.5, 0.8]
 #lambda_values = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3]
 lambda_values = np.logspace(-5, -1, 5)
 

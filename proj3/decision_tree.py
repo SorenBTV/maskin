@@ -35,20 +35,20 @@ def preprocess_dataset(file_path):
     df = pd.DataFrame(data)
 
     # Decode byte strings in categorical columns
-    categorical_cols = ['seismic', 'seismoacoustic', 'shift', 'ghazard', 'class']
+    categorical_cols = ["seismic", "seismoacoustic", "shift", "ghazard", "class"]
     for col in categorical_cols:
-        df[col] = df[col].str.decode('utf-8')
+        df[col] = df[col].str.decode("utf-8")
 
     # Encode the target variable ('class') into integers
     label_encoder = LabelEncoder()
-    df['class'] = label_encoder.fit_transform(df['class'])
+    df["class"] = label_encoder.fit_transform(df["class"])
 
     # One-hot encode other categorical variables
-    df = pd.get_dummies(df, columns=['seismic', 'seismoacoustic', 'shift', 'ghazard'], drop_first=True)
+    df = pd.get_dummies(df, columns=["seismic", "seismoacoustic", "shift", "ghazard"], drop_first=True)
 
     # Separate features and target
-    X = df.drop('class', axis=1)
-    y = df['class']
+    X = df.drop("class", axis=1)
+    y = df["class"]
 
     # Standardize the numerical features
     scaler = StandardScaler()
@@ -74,7 +74,7 @@ def decision_tree(X_train, X_test, y_train, y_test, feature_names, max_depth):
         IV  max_depth (int): Maximum depth of the decision tree.
     """
     # Initialize and train the decision tree classifier
-    clf = DecisionTreeClassifier(class_weight='balanced', max_depth=max_depth, random_state=123)
+    clf = DecisionTreeClassifier(class_weight="balanced", max_depth=max_depth, random_state=123)
     clf.fit(X_train, y_train)
 
     # Predict on the validation set
@@ -90,14 +90,14 @@ def decision_tree(X_train, X_test, y_train, y_test, feature_names, max_depth):
 
 
     plt.figure(figsize=(20, 12))
-    plot_tree(clf, feature_names=feature_names, class_names=['Class 0', 'Class 1'], filled=True, fontsize=12)
+    plot_tree(clf, feature_names=feature_names, class_names=["Class 0", "Class 1"], filled=True, fontsize=12)
 
     save_dir = "figs"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, "Decision_tree.pdf")
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"Figure saved to {save_path}")
 
 
@@ -136,7 +136,7 @@ def xgboost(X_train, X_test, y_train, y_test, feature_names):
 
 
 #Preprocess dataset
-file_path = 'C:\\Users\\soren\\maskin\\proj3\\dataset\\dataset'
+file_path = "./dataset/dataset"
 X_train, X_test, y_train, y_test, feature_names = preprocess_dataset(file_path)
 
 decision_tree(X_train, X_test, y_train, y_test, feature_names, 4)
