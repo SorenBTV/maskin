@@ -6,11 +6,11 @@ To reproduce: Just run all codes by doing "python "filename.py"", and all the pl
 
 Mains:
 
-foo.py plots the classification analysis using the neural network.
+nn_classification.py plots the classification analysis using the neural network.
 
 lin_reg.py plots the classification analysis using linear regression.
 
-decision_tree.py provides results from classification analysis using a plain decision tree and XGBoost.
+decision_tree.py provides results from classification analysis as well as a visualization of our decision tree using a plain decision tree. I've also implemented XGBoost, however i didn't have time to find optimal values for this method and chose to not use it in the report.
 
 
 

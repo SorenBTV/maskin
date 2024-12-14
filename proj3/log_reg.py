@@ -50,20 +50,20 @@ def preprocess_dataset(file_path):
     df = pd.DataFrame(data)
 
     # Decode byte strings in categorical columns
-    categorical_cols = ['seismic', 'seismoacoustic', 'shift', 'ghazard', 'class']
+    categorical_cols = ["seismic", "seismoacoustic", "shift", "ghazard", "class"]
     for col in categorical_cols:
-        df[col] = df[col].str.decode('utf-8')
+        df[col] = df[col].str.decode("utf-8")
 
-    # Encode the target variable ('class') into integers
+    # Encode the target variable ("class") into integers
     label_encoder = LabelEncoder()
-    df['class'] = label_encoder.fit_transform(df['class'])
+    df["class"] = label_encoder.fit_transform(df["class"])
 
     # One-hot encode other categorical variables
-    df = pd.get_dummies(df, columns=['seismic', 'seismoacoustic', 'shift', 'ghazard'], drop_first=True)
+    df = pd.get_dummies(df, columns=["seismic", "seismoacoustic", "shift", "ghazard"], drop_first=True)
 
     # Separate features and target
-    X = df.drop('class', axis=1)
-    y = df['class']
+    X = df.drop("class", axis=1)
+    y = df["class"]
 
     # Standardize the numerical features
     scaler = StandardScaler()
@@ -139,7 +139,7 @@ def train(X_train, t_train, scheduler=None, learning_rate=0.001, epochs=100, bat
     ------------
         Wrapper function to train a logistic regression model using SGD.
         Calls logistic_regression_sgd to optimize weights and evaluates
-        the model's performance on the training set.
+        the model"s performance on the training set.
 
     Parameters:
     ------------
@@ -221,7 +221,7 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
     recall_list_hazardous = []
 
     for i, eta in enumerate(eta_values):
-        print(f"\r\033[K Working on eta value {i+1}/{len(eta_values)} for scheduler: {title}.", end='')
+        print(f"\r\033[K Working on eta value {i+1}/{len(eta_values)} for scheduler: {title}.", end="")
         for j, lam in enumerate(lambda_values):
             t_pred, t_test_labels, accuracy, weights = train(X_train, t_train, scheduler=scheduler, learning_rate=eta, epochs=epochs, batch_size=batch_size, lambda_val=lam, momentum=mom)
             accuracy_matrix[i, j] = accuracy
@@ -235,7 +235,7 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
     # Plot heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(accuracy_matrix, annot=True, fmt=".4f", cmap="viridis",
-                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 12}, vmin=0.5, vmax=1.0)
+                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={"label": "Accuracy"}, annot_kws={"size": 12}, vmin=0.5, vmax=1.0)
     plt.xlabel("log10(Lambda)", fontsize=14)
     plt.ylabel("Learning Rate (Eta)", fontsize=14)
     plt.title(f"Accuracy of Logistic Regression using {title}", fontsize=16)
@@ -245,7 +245,7 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, savename)
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"\nFigure saved to {save_path}")
     #plt.show()
 
@@ -262,7 +262,7 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, f"Recall_Hazard_{title}.pdf")
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"\nFigure saved to {save_path}")
 
     # Compute mean precision for each class
@@ -283,8 +283,8 @@ def heatplot_eta_lmbda_log_reg(X_train, t_train, X_test, t_test, eta_values, lam
     })
 
     # Set display options for pandas
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.expand_frame_repr', False)
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.expand_frame_repr", False)
     # Print results
     print("Recall Results Summary:")
     print(results_df.to_string(index=False))

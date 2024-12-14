@@ -35,20 +35,20 @@ def preprocess_dataset(file_path):
     df = pd.DataFrame(data)
 
     # Decode byte strings in categorical columns
-    categorical_cols = ['seismic', 'seismoacoustic', 'shift', 'ghazard', 'class']
+    categorical_cols = ["seismic", "seismoacoustic", "shift", "ghazard", "class"]
     for col in categorical_cols:
-        df[col] = df[col].str.decode('utf-8')
+        df[col] = df[col].str.decode("utf-8")
 
-    # Encode the target variable ('class') into integers
+    # Encode the target variable ("class") into integers
     label_encoder = LabelEncoder()
-    df['class'] = label_encoder.fit_transform(df['class'])
+    df["class"] = label_encoder.fit_transform(df["class"])
 
     # One-hot encode other categorical variables
-    df = pd.get_dummies(df, columns=['seismic', 'seismoacoustic', 'shift', 'ghazard'], drop_first=True)
+    df = pd.get_dummies(df, columns=["seismic", "seismoacoustic", "shift", "ghazard"], drop_first=True)
 
     # Separate features and target
-    X = df.drop('class', axis=1)
-    y = df['class']
+    X = df.drop("class", axis=1)
+    y = df["class"]
 
     # Standardize the numerical features
     scaler = StandardScaler()
@@ -111,7 +111,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
             scores = network.fit(X_train, t_train, scheduler, lam=lambda_val, epochs=epochs, X_val=X_test, t_val=t_test)
 
             # Store final accuracy
-            accuracy_results[i, j] = scores['val_accs'][-1]  # Last epoch's accuracy
+            accuracy_results[i, j] = scores["val_accs"][-1]  # Last epoch"s accuracy
 
             # Predictions and recall score
             y_pred = network.predict(X_test)
@@ -125,7 +125,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
     # Plot heatmap for accuracy
     plt.figure(figsize=(10, 8))
     sns.heatmap(accuracy_results, annot=True, fmt=".2f", cmap="viridis", xticklabels=layer_options,
-                yticklabels=neuron_options, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 14}, vmin=0.2, vmax=1.0)
+                yticklabels=neuron_options, cbar_kws={"label": "Accuracy"}, annot_kws={"size": 14}, vmin=0.2, vmax=1.0)
     plt.title(f"Accuracy for Nodes vs Layers using {title}", fontsize=16)
     plt.xlabel("Layers", fontsize=14)
     plt.ylabel("Nodes per Layer", fontsize=14)
@@ -136,14 +136,14 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, savename)
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"Figure saved to {save_path}")
 
 
     # Plot heatmap for recall score of class 1
     plt.figure(figsize=(10, 8))
     sns.heatmap(recall_results, annot=True, fmt=".3f", cmap="viridis",
-                xticklabels=layer_options, yticklabels=neuron_options, cbar_kws={'label': 'Class 1 recall'},
+                xticklabels=layer_options, yticklabels=neuron_options, cbar_kws={"label": "Class 1 recall"},
                 annot_kws={"size": 12})
     plt.title(f"Class 1 Recall score for Nodes vs Layers using {title}", fontsize=16)
     plt.xlabel("Layers", fontsize=14)
@@ -154,7 +154,7 @@ def heatplot_accuracy_nodes_layers(X_train, t_train, X_test, t_test, neuron_opti
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, f"NN_neuron_layer_recall_hazard_{title}.pdf")
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"Figure saved to {save_path}")
 
 
@@ -213,7 +213,7 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
             scores = network.fit(X_train, t_train, scheduler, lam=lam, epochs=epochs, X_val=X_test, t_val=t_test)
 
             # Store final accuracy
-            accuracy_results[i, j] = scores['val_accs'][-1]  # Last epoch's accuracy
+            accuracy_results[i, j] = scores["val_accs"][-1]  # Last epoch"s accuracy
 
             # Predictions and recall score
             y_pred = network.predict(X_test)
@@ -227,7 +227,7 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
     # Plot heatmap for accuracy
     plt.figure(figsize=(10, 8))
     sns.heatmap(accuracy_results, annot=True, fmt=".2f", cmap="viridis", xticklabels=np.log10(lambda_values),
-                yticklabels=eta_values, cbar_kws={'label': 'Accuracy'}, annot_kws={"size": 14}, vmin=0.2, vmax=1.0)
+                yticklabels=eta_values, cbar_kws={"label": "Accuracy"}, annot_kws={"size": 14}, vmin=0.2, vmax=1.0)
     plt.title(f"Accuracy for Eta vs Lambda using {title}", fontsize=16)
     plt.xlabel("log10(Lambda)", fontsize=14)
     plt.ylabel("Learning rate (Eta)", fontsize=14)
@@ -237,14 +237,14 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, savename)
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"Figure saved to {save_path}")
 
 
     # Plot heatmap for recall score of class 1
     plt.figure(figsize=(10, 8))
     sns.heatmap(recall_results, annot=True, fmt=".3f", cmap="viridis",
-                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={'label': 'Class 1 recall'},
+                xticklabels=np.log10(lambda_values), yticklabels=eta_values, cbar_kws={"label": "Class 1 recall"},
                 annot_kws={"size": 12})
     plt.title(f"Class 1 recall for Eta vs Lambda using {title}", fontsize=16)
     plt.xlabel("log10(Lambda)", fontsize=14)
@@ -255,7 +255,7 @@ def heatplot_accuracy_eta_lambda(X_train, t_train, X_test, t_test, eta_values, l
         os.makedirs(save_dir)
 
     save_path = os.path.join(save_dir, f"NN_eta_lam_recall_hazard_{title}.pdf")
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches="tight")
     print(f"Figure saved to {save_path}")
 
     return accuracy_results

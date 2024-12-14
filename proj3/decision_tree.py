@@ -90,7 +90,7 @@ def decision_tree(X_train, X_test, y_train, y_test, feature_names, max_depth):
 
 
     plt.figure(figsize=(20, 12))
-    plot_tree(clf, feature_names=feature_names, class_names=["Class 0", "Class 1"], filled=True, fontsize=12)
+    plot_tree(clf, feature_names=feature_names, class_names=["Class 0", "Class 1"], filled=True, fontsize=9)
 
     save_dir = "figs"
     if not os.path.exists(save_dir):
@@ -140,4 +140,4 @@ file_path = "./dataset/dataset"
 X_train, X_test, y_train, y_test, feature_names = preprocess_dataset(file_path)
 
 decision_tree(X_train, X_test, y_train, y_test, feature_names, 4)
-xgboost(X_train, X_test, y_train, y_test, feature_names)
+#xgboost(X_train, X_test, y_train, y_test, feature_names)
